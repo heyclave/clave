@@ -1,0 +1,12 @@
+# Local Worker env for exercising the lead form (pnpm dev:full).
+# Copy to `.dev.vars` (gitignored) on sites with lead capture. The Turnstile
+# secret below is Cloudflare's ALWAYS-PASSES test key — safe for local/QA only,
+# never production (production secret is set via `wrangler secret put`).
+#
+# Email is NOT sent in local dev (no real binding) — full delivery is verified
+# only against the deployed site (see stages/qa.md). Local dev exercises the
+# honeypot, Turnstile, validation, and the redirect-to-/thanks flow.
+LEAD_TO="you@example.com"
+LEAD_FROM="hello@example.com"
+LEAD_SUBJECT="New enquiry from your website"
+TURNSTILE_SECRET="1x0000000000000000000000000000000AA"

@@ -1,0 +1,38 @@
+{
+  // Markdown lint rules for repo-authored prose.
+  // Shared by: the VS Code extension (DavidAnson.vscode-markdownlint),
+  // `make lint` (npx markdownlint-cli2), and CI (markdownlint-cli2-action).
+  // NOT applied to the verbatim template payload or vendored design docs —
+  // see .markdownlint-cli2.jsonc for the file globs / ignores.
+
+  "default": true,
+
+  // Prose is hand-wrapped at ~90 chars on purpose, and SKILL.md's contract
+  // tables run long by design. A hard line-length limit would fight both.
+  "MD013": false,
+
+  // Allow inline HTML — used intentionally in places.
+  "MD033": false,
+
+  // Don't require the first line to be a top-level heading (TODO.md etc.).
+  "MD041": false,
+
+  // Ordered lists: enforce consistent style but don't dictate 1/2/3 vs 1/1/1.
+  "MD029": { "style": "one_or_ordered" },
+
+  // House style is asterisks for emphasis/strong (*italic*, **bold**). Pin it
+  // so the editor's format-on-save doesn't rewrite *...* into _..._.
+  "MD049": { "style": "asterisk" },
+  "MD050": { "style": "asterisk" },
+
+  // SKILL.md's tables are contracts; their exact pipe spacing/alignment is
+  // intentional. Don't let a cosmetic table-style rule rewrite them.
+  "MD060": false,
+
+  // We deliberately nest fenced code blocks inside list items (commands under
+  // a numbered step). markdownlint flags these and its autofix can break the
+  // list structure, so disable the blank-line-around-fences rule. Same root
+  // cause makes MD038 misread an indented fence as an inline code span.
+  "MD031": false,
+  "MD038": false
+}

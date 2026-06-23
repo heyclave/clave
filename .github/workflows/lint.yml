@@ -1,0 +1,25 @@
+name: lint
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  markdown:
+    runs-on: ubuntu-latest
+    steps:
+      # Actions pinned to commit SHAs (not floating tags) so a re-pointed tag
+      # can't swap the code under us. Comments note the human-readable version.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-node@39370e3970a6d050c480ffad4ff0ed4d3fdee5af # v4.1.0
+        with:
+          node-version: 22
+
+      # Run the EXACT same pinned linter as `make lint`, rather than a
+      # third-party action that bundles its own (drifting) markdownlint-cli2.
+      # CI and local are identical by construction; the only supply-chain
+      # surface is this one pinned npm package. Reads .markdownlint-cli2.jsonc
+      # (globs + ignores) and .markdownlint.jsonc (rules) from the repo root.
+      # Keep the version in lockstep with LINTER in the Makefile.
+      - run: npx --yes markdownlint-cli2@0.22.1

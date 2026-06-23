@@ -1,0 +1,16 @@
+{
+  // What markdownlint-cli2 lints. Rule config lives in .markdownlint.jsonc.
+  // Consumed by `make lint` and CI; the VS Code extension reads `ignores` too.
+
+  "globs": ["**/*.md"],
+
+  "ignores": [
+    // Verbatim payload — copied byte-for-byte into a user's site. Never
+    // reformat it here; it ships its own toolchain in the scaffolded site.
+    "skills/clave/template/**",
+
+    // Vendored verbatim from anthropics/skills; re-synced by re-copying
+    // upstream. Linting it would create churn against an external source.
+    "skills/clave/design/frontend-design.md"
+  ]
+}

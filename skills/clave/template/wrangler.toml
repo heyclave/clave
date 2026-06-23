@@ -1,0 +1,37 @@
+# Cloudflare Workers — static assets deploy.
+#
+# Out of the box this serves the static Astro build (./dist) and nothing else:
+# no `main`, no Worker script. `wrangler deploy` uploads ./dist to the edge.
+#
+# The site name becomes the *.workers.dev subdomain and the project name in the
+# dashboard — set it before the first deploy.
+name = "clave-site"
+compatibility_date = "2026-06-15"
+
+# Lead capture: uncomment to make worker/index.js own POST /api/lead. Must stay
+# above [assets] (a bare key after a table header would bind to that table).
+# main = "worker/index.js"
+
+[assets]
+directory = "./dist"
+# --- Lead capture: uncomment these two ONLY when the brief asks for a form. ---
+# `binding` lets the worker fall through to assets (env.ASSETS.fetch); it is ONLY
+# valid alongside `main` (an assets-only deploy with no worker MUST omit it, or
+# `wrangler deploy` errors). `run_worker_first` makes the worker own POST /api/lead
+# while other routes stay asset-first.
+# binding = "ASSETS"
+# run_worker_first = ["/api/lead"]
+
+# --- Lead capture (uncomment the rest ONLY when the brief asks for it) ---
+# Also uncomment `main` above and the two keys under [assets]. Requires
+# worker/index.js + worker/email.js to exist. Set LEAD_TO / LEAD_FROM to real
+# addresses, then store the Turnstile secret with
+# `wrangler secret put TURNSTILE_SECRET`. See stages/build.md and stages/deploy.md.
+#
+# [[send_email]]
+# name = "EMAIL"
+#
+# [vars]
+# LEAD_TO = "owner@example.com"        # where enquiries land (from the brief)
+# LEAD_FROM = "hello@yourdomain.com"   # From address, on the verified sending domain
+# LEAD_SUBJECT = "New enquiry from your website"

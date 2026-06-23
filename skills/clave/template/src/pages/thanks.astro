@@ -1,0 +1,18 @@
+---
+import Layout from '../layouts/Layout.astro';
+// Confirmation page after a lead is submitted. The worker redirects here on
+// success (303), so it works without JavaScript. Replace the copy below from
+// docs/voice.md during build — keep the page itself.
+---
+
+<Layout title="Thanks">
+  <main class="flex min-h-screen items-center justify-center p-6">
+    <div class="max-w-md text-center">
+      <h1 class="font-display text-3xl text-primary sm:text-4xl">Thanks — we'll be in touch</h1>
+      <p class="mt-4 text-base">
+        Your message is on its way. We'll get back to you shortly.
+      </p>
+      <a href="/" class="mt-6 inline-block text-primary underline">Back home</a>
+    </div>
+  </main>
+</Layout>

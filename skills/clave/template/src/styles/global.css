@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens — map docs/website/design.md into this @theme block ONCE,
+ * then use the generated utilities everywhere (bg-background, text-body,
+ * text-primary, font-display, ...). Never hardcode off-spec values in markup.
+ */
+@theme {
+  /* Colors — replace with the values from design.md */
+  --color-primary: #1b4332;
+  --color-accent: #d8f3dc;
+  --color-background: #ffffff;
+  --color-surface: #f8f9fa;
+  --color-body: #212529;
+  --color-border: #dee2e6;
+
+  /* Typography — replace with the pairing from design.md */
+  --font-display: ui-serif, Georgia, serif;
+  --font-body: ui-sans-serif, system-ui, sans-serif;
+}

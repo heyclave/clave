@@ -1,0 +1,33 @@
+{
+  "name": "clave-site",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@11.8.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "check": "astro check",
+    "skeletons": "node scripts/skeletons.mjs",
+    "shots": "pnpm build && node scripts/shots.mjs",
+    "audit": "pnpm build && node scripts/audit.mjs",
+    "smoke": "pnpm check && pnpm shots",
+    "dev:full": "pnpm build && wrangler dev",
+    "deploy": "pnpm build && wrangler deploy"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "3.7.3",
+    "@tailwindcss/vite": "4.3.0",
+    "astro": "5.18.2",
+    "tailwindcss": "4.3.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.9",
+    "@axe-core/playwright": "4.11.3",
+    "playwright": "1.60.0",
+    "typescript": "6.0.3",
+    "wrangler": "4.100.0"
+  }
+}

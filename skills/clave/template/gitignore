@@ -1,0 +1,22 @@
+# build output
+dist/
+.astro/
+.wrangler/
+
+# dependencies
+node_modules/
+
+# QA captures (transient, not part of the record)
+.qa/
+
+# Clave agent scratch (local notes, not the record). .clave/skeletons/ IS committed —
+# it's the kept design archive — so ignore only the scratch file, not the whole dir.
+.clave/scratch.md
+
+# environment
+.env
+.env.production
+.dev.vars
+
+# macOS
+.DS_Store

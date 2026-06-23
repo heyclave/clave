@@ -1,0 +1,66 @@
+<!doctype html>
+<!--
+  SKELETON BOILERPLATE — copy this per design direction (skeleton-a.html, -b, -c).
+  Disposable, fully self-contained, throwaway. Deleted after the direction is picked;
+  never enters docs/ or the built site.
+
+  Rules:
+  - Fill in REAL fonts + colors for THIS direction (so the vibe reads), but keep content
+    as lorem ipsum and [image] boxes — it's a mood board, not a page.
+  - Each skeleton must share NOTHING with the others. Generate each independently (a fresh
+    subagent per direction is ideal). Vary the bones: hero, grid, section rhythm, density.
+  - No build, no server framework. Tailwind comes from the Play CDN below (dev-only, fine
+    for a throwaway). Pick the direction's fonts from Google Fonts via the <link>.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Skeleton — &lt;direction name&gt;</title>
+
+    <!-- Tailwind v4, no build (Play CDN — dev/throwaway only) -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <!-- This direction's fonts — replace with the real pairing -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=REPLACE_ME&display=swap" rel="stylesheet" />
+
+    <!-- This direction's tokens. Tailwind v4 reads CSS-first config from @theme. -->
+    <style type="text/tailwindcss">
+      @theme {
+        --color-bg: #ffffff;
+        --color-ink: #111111;
+        --color-accent: #2563eb;
+        --font-display: "REPLACE_ME", serif;
+        --font-body: "REPLACE_ME", sans-serif;
+      }
+      /* [image] placeholder box — visual stand-in, no real assets */
+      .ph {
+        display: grid; place-items: center;
+        background: repeating-linear-gradient(45deg, #0001 0 10px, #0000 10px 20px);
+        border: 1px dashed currentColor; color: inherit; opacity: 0.5;
+        font: 0.75rem/1 var(--font-body); aspect-ratio: 16/9;
+      }
+    </style>
+  </head>
+
+  <body class="bg-bg text-ink font-body">
+    <!--
+      Build a homepage skeleton: hero + a few sections. Use Tailwind utilities.
+      Vary the structure from the other directions — this is a DIRECTION, not a reskin.
+      Example scaffolding (replace entirely to fit the direction):
+    -->
+    <header class="mx-auto max-w-5xl px-6 py-24">
+      <h1 class="font-display text-5xl">Lorem ipsum dolor sit amet</h1>
+      <p class="mt-4 max-w-prose text-lg opacity-80">
+        Consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore.
+      </p>
+      <div class="ph mt-10 w-full">[image]</div>
+    </header>
+
+    <section class="mx-auto max-w-5xl px-6 py-16">
+      <!-- sections vary per direction -->
+    </section>
+  </body>
+</html>

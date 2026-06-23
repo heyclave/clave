@@ -1,0 +1,72 @@
+---
+// Lead-capture form. Plain POST to /api/lead — works without JavaScript.
+// Fields come from docs/website/brief.md; the build stage edits the fields below
+// to match. Keep: the honeypot (`lead_hp`), the Turnstile widget, the no-JS error
+// banner, and `method="POST" action="/api/lead"`.
+//
+// Styling uses @theme tokens only (bg-*, text-*, border-*) — no off-spec values.
+// Accessible: every input has a <label for>; required fields are marked.
+
+interface Props {
+  /** Turnstile sitekey. Defaults to the always-passing TEST key for local/QA.
+   *  The deploy provisioning step swaps in the real sitekey. */
+  sitekey?: string;
+}
+const { sitekey = '1x00000000000000000000AA' } = Astro.props;
+
+// No-JS error display: the worker redirects back with ?lead_error=… on a
+// recoverable failure (e.g. Turnstile not solved).
+const error = Astro.url.searchParams.get('lead_error');
+---
+
+<form method="POST" action="/api/lead" class="flex flex-col gap-4">
+  {error && (
+    <p role="alert" class="rounded border border-border bg-surface px-4 py-3 text-body">
+      {error}
+    </p>
+  )}
+
+  <div class="flex flex-col gap-1">
+    <label for="lead-name" class="text-body">Name</label>
+    <input
+      id="lead-name" name="name" type="text" required autocomplete="name"
+      class="rounded border border-border bg-background px-4 py-3 text-body"
+    />
+  </div>
+
+  <div class="flex flex-col gap-1">
+    <label for="lead-email" class="text-body">Email</label>
+    <input
+      id="lead-email" name="email" type="email" required autocomplete="email"
+      class="rounded border border-border bg-background px-4 py-3 text-body"
+    />
+  </div>
+
+  <div class="flex flex-col gap-1">
+    <label for="lead-message" class="text-body">Message</label>
+    <textarea
+      id="lead-message" name="message" rows="5" required
+      class="rounded border border-border bg-background px-4 py-3 text-body"
+    ></textarea>
+  </div>
+
+  {/* Honeypot: hidden from people, tempting to bots. A filled `lead_hp` is
+      silently dropped by the worker. The field name is NOT a real autofill key
+      (and autocomplete="off"), so browsers won't populate it and drop a genuine
+      lead. aria-hidden + tabindex so people skip it. Must match worker/index.js. */}
+  <div class="absolute left-[-9999px]" aria-hidden="true">
+    <label for="lead-hp">Leave this field empty</label>
+    <input id="lead-hp" name="lead_hp" type="text" tabindex="-1" autocomplete="off" />
+  </div>
+
+  {/* Turnstile widget. Renders invisibly; injects cf-turnstile-response on solve. */}
+  <div class="cf-turnstile" data-sitekey={sitekey}></div>
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer is:inline></script>
+
+  <button
+    type="submit"
+    class="rounded bg-primary px-6 py-3 text-background"
+  >
+    Send
+  </button>
+</form>
