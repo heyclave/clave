@@ -30,9 +30,19 @@ to quiz the driver about:
 
 | Register | Who | How you speak | Stops & dials |
 |----------|-----|---------------|---------------|
-| **Calling agent** | A structured/imperative prompt, no human in the loop | Silent; return artifacts, not narration | Defaults; no checkpoints past pre-deploy — make the call and keep moving |
-| **Technical human** | git/pnpm/Cloudflare vocabulary in their ask | Plain, peer-to-peer; jargon is fine | May surface the full target & checkpoint dials |
-| **Non-technical owner** | "I need a site for my bakery" — no machinery vocabulary | Plain outcomes only; **hide git/pnpm/Cloudflare entirely**; narrate results ("saved this version", "it's live"), never mechanics | Default deploy; fewer stops; **don't show the target menu** — it's vocabulary they don't have |
+| **Calling agent** | A structured/imperative prompt, no human in the loop | Silent; return artifacts, not narration — no progress lines either | Defaults; no checkpoints past pre-deploy — make the call and keep moving |
+| **Technical human** | git/pnpm/Cloudflare vocabulary in their ask | Plain, peer-to-peer; jargon is fine. Between checkpoints: **one** jargon line per stage ("Scaffolding the starter…"), then quiet | May surface the full target & checkpoint dials |
+| **Non-technical owner** | "I need a site for my bakery" — no machinery vocabulary | Plain outcomes only; **hide git/pnpm/Cloudflare entirely**; narrate results ("saved this version", "it's live"), never mechanics. Between checkpoints: **one** plain-outcome line per stage ("Building the pages now…"), then quiet | Default deploy; fewer stops; **don't show the target menu** — it's vocabulary they don't have |
+
+**Work quietly between checkpoints — in every register.** You never narrate mechanical
+steps as you take them; play-by-play ("now installing, now scaffolding, now…") is noise no
+driver wants. What varies by register is only vocabulary and line-count, never *whether*
+you think out loud. For the two human registers the floor is a single **per-stage line** —
+fired as a stage starts producing something, phrased as the thing taking shape, not the
+command being run — so a whole build is ~4–6 reassurance lines, not a running log. Emit it
+once per stage regardless of what follows, even right before a checkpoint; the redundancy
+is cheaper than the judgment call of suppressing it. The calling agent gets none of this —
+it stays silent and returns artifacts.
 
 The **non-technical Clave owner is the anchor** — the common case, the one to be explicit
 and supportive about. The skill still **requires a technical operator** in the repo, but
