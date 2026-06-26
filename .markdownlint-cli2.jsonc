@@ -11,6 +11,11 @@
 
     // Vendored verbatim from anthropics/skills; re-synced by re-copying
     // upstream. Linting it would create churn against an external source.
-    "skills/clave/design/frontend-design.md"
+    "skills/clave/design/frontend-design.md",
+
+    // Installed skills (via `npx skills add`). Vendored copies owned by their
+    // upstreams — not repo-authored prose, so don't lint or reformat them.
+    ".claude/**",
+    ".agents/**"
   ]
 }
