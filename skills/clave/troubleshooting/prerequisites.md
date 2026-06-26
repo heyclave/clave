@@ -82,3 +82,34 @@ to be **authenticated** to their own Cloudflare account.
 - **Auth expired / wrong account:** `wrangler logout` then `wrangler login` again, picking
   the right account. Custom-domain and lead-capture (Email Sending, Turnstile) setup is a
   separate guided session — see [deploy.md](../stages/deploy.md), not here.
+
+## Skill version pin — advanced, power-user only
+
+Unlike everything above, this is **not** for a non-technical owner — it's a deliberate
+power-user control, and it's the one prereq the *skill imposes on itself*. A site can
+**pin** which Clave version may run against it by adding `pinVersion` to `.clave/clave.json`
+**by hand**:
+
+```json
+{ "claveVersion": "0.1.0", "pinVersion": "0.1.0" }
+```
+
+The skill **reads and enforces** the pin but never offers to set or clear it — setting and
+removing are both manual JSON edits. See
+[SKILL.md Skill versioning](../SKILL.md#skill-versioning-keeping-clave-current) for the
+model (why a pin constrains the *tool*, never the built site).
+
+**When kickoff stops on a pin** (`pinVersion ≠ the installed skill's `version:``): the wrong
+Clave is installed for this pinned site. Resolve by moving the **install** to the pin — not
+the site, and not the pin:
+
+- Re-install the skill at the pinned version, or `git checkout` the Clave repo at its
+  matching tag (`vX.Y.Z`) and re-point the install there. (The `skills` tool versions by
+  content hash, not ref, so a tagged checkout of the source is the reliable way to land an
+  exact version.)
+- Then re-run — installed now equals the pin, and the stop clears.
+- To **stop pinning** instead, delete the `pinVersion` line; the site floats to latest again
+  (and the next update offer returns).
+
+Never edit `claveVersion` by hand to dodge a stop — it records what built the site and is
+maintained by the build stage; only `pinVersion` is yours to set.

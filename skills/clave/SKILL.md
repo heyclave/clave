@@ -1,5 +1,6 @@
 ---
 name: clave
+version: 0.1.0
 description: Build and run websites with Astro and Tailwind CSS. Keeps a system of record in docs/ — business truth at the root, site-specific specs under docs/website/ — and runs a staged build pipeline (discovery, brief, design, voice, build, qa, deploy) over it, so intent persists on disk across sessions. Use when the user wants to create, assemble, extend, or ship a website — and equally when they want to iterate on, polish, tweak, redesign, or maintain an existing one (copy changes, design changes, QA, redeploys), add a spam-filtered contact/lead-capture form, or whenever the repo has a docs/ system of record managed by this skill. Always uses Astro + Tailwind, deploys to Cloudflare. Ships with frontend-design guidance built in — no companion skills required.
 ---
 
@@ -70,6 +71,60 @@ with each site, so old sites keep working regardless of skill upgrades. Scaffold
 are **pnpm-based** (the build stage installs pnpm via npm, once); only the skill installer
 itself uses npm/npx.
 
+## Skill versioning (keeping Clave current)
+
+The *template* is pinned per-site (above). The *skill* — these instructions — has its own
+version, and a site remembers which version built it. Three version-bearing values exist on
+**two axes**; they are **never compared to each other**, only ever each against the
+**installed** version. Three different numbers is a legal, coherent state, not a paradox.
+
+| Value | Where | Means | Compared to installed for |
+|-------|-------|-------|---------------------------|
+| **installed** | `SKILL.md` frontmatter `version:` (your own — read it) | the skill running *right now* | (the fixed point) |
+| **`claveVersion`** | `.clave/clave.json` | the version that last **built this site** (past tense; moves *forward* only) | **migration** |
+| **`pinVersion`** | `.clave/clave.json` (optional) | the version the owner **declared** they want | **enforcement** (hard stop) |
+
+Clave's versions are **self-maintained semver**, git-tagged in the Clave repo — *not* the
+`skills` tool's content hash, which can say "different" but never "older/newer" (the ordering
+migration and pins both need). The freshness *check* still rides on the tool's hash; the
+*reasoning* rides on semver. You learn your own version by reading your frontmatter.
+
+**At kickoff, in this order** (folded into [Start here](#start-here)):
+
+1. **Enforce the pin (hard stop, before anything else).** If `clave.json` has a
+   `pinVersion` and it ≠ your installed version, **stop** — like a failed prerequisite,
+   register-blind, plain words: the site is pinned and the wrong version is installed. Fix
+   the *install* (re-install / `git checkout` the skill at the pin) — **never** move the
+   site or downgrade the pin to match. The pin constrains the **tool, never the built
+   site**. `pinVersion` is a deliberate power-user act, set by hand-editing `clave.json`;
+   you read and enforce it but never offer to set it (see
+   [troubleshooting/prerequisites.md](troubleshooting/prerequisites.md)).
+2. **Offer an update (after register is set; always prompt, never auto-apply).** Run
+   `npx skills` freshness check; if a newer Clave exists, **offer** it — wording scales by
+   register (below). On **yes**, `npx skills update`: it lands on disk and takes effect
+   **next** session, **not this one**. Tell the driver that plainly and let them choose to
+   restart or keep going. This run continues on the version already in your context, so
+   **do not advance `claveVersion`** for an update you merely downloaded.
+3. **Migrate if older (against the *running* version).** If `claveVersion` < your installed
+   version, read your **own** bundled
+   [troubleshooting/migrate.md](troubleshooting/migrate.md) and walk the site forward. You
+   migrate to the version **running this session** — never to a version you just offered and
+   haven't loaded. (Today every version is backwards-compatible, so this is a no-op line;
+   the *detection* ships now so already-built sites know to look later.)
+
+**The update offer, by register** — same facts, volume scaled to the recipient's attention
+(a token earns its place only if it's actionable at the recipient's task level):
+
+| Register | What they see |
+|----------|---------------|
+| **Calling/parent agent** | The decision-bearing minimum, one line: *"Clave 1.5 available (running 1.4). Update? Applies next session."* No changelog, no mechanics — those are below its task level. It can answer; it is a real party in the loop. |
+| **Technical human** | One **skimmable** line, the numbers + a y/n: *"Newer Clave available (1.4 → 1.5) — update? Takes effect next session."* |
+| **Non-technical owner** | Lightest touch, **no numbers, no command**, easy to wave past: *"There's a newer version of the builder available — want it next time?"* |
+
+Everyone is **checked and offered**; only the *shape* differs, and nothing **auto-applies**
+in any register. The pin **hard stop**, by contrast, is universal and register-blind — an
+offer is a preference, a pin violation is a correctness failure.
+
 ## Where this runs (the site root)
 
 This skill operates on **one directory — the *site root*** — which *is*, or becomes, the
@@ -81,11 +136,13 @@ territories with deliberately different ownership:
 |---------------------|------|-----------|------------|
 | `docs/` | The system of record — business truth + per-channel specs | **Human-owned** (source of truth) | yes |
 | repo root (`src/`, `public/`, `astro.config.mjs`, …) | The built Astro site | Agent-owned, regenerable | yes |
-| `.clave/` | Agent working artifacts — `skeletons/` (kept design archive) + `scratch.md` (local notes) | Agent-owned | `skeletons/` yes, `scratch.md` no |
+| `.clave/` | Agent working artifacts — `clave.json` (version ledger) + `skeletons/` (kept design archive) + `scratch/` (local notes) | Agent-owned | **committed by default**; only `scratch/` is ignored |
 
 `docs/` stays **at the root, visible and human-editable** — it's the durable product, never
 hidden in a dotfolder. `.clave/` is the opposite: Clave's own working namespace, kept out
-of the way. Transient QA captures live in `.qa/` (gitignored), not the record.
+of the way — **committed by default** (its `clave.json` ledger and `skeletons/` archive are
+part of the record); only `.clave/scratch/` is local-and-transient, gitignored. Transient
+QA captures live in `.qa/` (gitignored), not the record.
 
 The site root **is the repo root** — the site and its `docs/` share one repo. Read every
 "the site root" below as "the repo root."
@@ -105,14 +162,16 @@ root.
 | `docs/website/brief.md`   | The plan for this site                           | brief      |
 | `docs/website/design.md`  | How every page looks                             | design     |
 | `docs/website/deploy.md`  | Where it runs — target, project, URL, last QA; lead-capture config when present | deploy     |
-| site root (`src/`, `public/`, …) | The built Astro site                      | build      |
+| site root (`src/`, `public/`, …) | The built Astro site + `.clave/clave.json` (records the building version as `claveVersion`) | build      |
 
 **State is derived — no separate status to maintain.** A stage is done when its artifact
 exists. QA is the exception: a **gate, not an artifact** — the deploy record is the
 evidence it passed. To resume: the next stage is the first whose artifact is missing; if
 the site is built but there's no deploy record, pick up at the first-build checkpoint.
 
-**Drift — the disk may not be what the pipeline assumes.** Derived-state resumption trusts
+**Drift — the disk may not be what the pipeline assumes.** ("Drift" here means **spec↔site**
+divergence — distinct from the *version* drift in [Skill versioning](#skill-versioning-keeping-clave-current),
+where `pinVersion ≠ installed`.) Derived-state resumption trusts
 the artifacts on disk; a hand-edited site, a half-finished session, or a collaborator can
 make a spec and the site it governs disagree. On resume, after the probe, **glance for
 spec↔site divergence** and triage it with the same question the three lanes ask — *what
@@ -276,9 +335,14 @@ is the Revision rule — *go backward only by editing a spec* — not a parallel
 
 1. Probe the project in **one compound call**, not six round-trips:
    ```bash
-   ls -a; git status -sb 2>/dev/null; ls docs 2>/dev/null; cat package.json 2>/dev/null
+   ls -a; git status -sb 2>/dev/null; ls docs 2>/dev/null; cat package.json 2>/dev/null; cat .clave/clave.json 2>/dev/null
    ```
-2. Kickoff (no artifacts yet): **read the driver before you write the plan.** Set the
+2. **Enforce the pin first (hard stop, register-blind).** If `.clave/clave.json` carries a
+   `pinVersion` that ≠ your installed `version:` and the probe shows an existing site, **stop
+   before reading the driver** — fail fast, plain words, like a failed prerequisite. See
+   [Skill versioning](#skill-versioning-keeping-clave-current). No pin, or pin matches →
+   continue.
+3. Kickoff (no artifacts yet): **read the driver before you write the plan.** Set the
    register from the first message + the probe — calling agent, technical human, or
    non-technical owner (see [Talking to the driver](#talking-to-the-driver)); it decides
    how this run sounds and how much you show. A calling agent skips the rest of this step
@@ -290,11 +354,19 @@ is the Revision rule — *go backward only by editing a spec* — not a parallel
    ("just play with some looks" → stop after design). Proceed unless corrected — a wrong
    guess costs one correction, not a battery of questions. Ask whether existing materials
    are available (point them at `docs/assets/`), then go.
-3. Look in `docs/` — the next stage is the first whose artifact is missing, **capped at
+4. **Offer an update, then migrate** (now the register is set — see
+   [Skill versioning](#skill-versioning-keeping-clave-current)): check for a newer Clave and
+   **offer** it in register-appropriate words (always prompt, never auto-apply; an accepted
+   update lands for **next** session and does **not** advance `claveVersion` this run). Then,
+   if `clave.json`'s `claveVersion` < your installed version, read your own
+   [troubleshooting/migrate.md](troubleshooting/migrate.md) and walk the site forward to the
+   **running** version. Both are no-ops on a brand-new site (no `clave.json` yet) and the
+   migrate is a no-op until the first breaking release.
+5. Look in `docs/` — the next stage is the first whose artifact is missing, **capped at
    the target's terminal stage** (read it from the top of `brief.md`; absent → re-ask,
    default deploy). If a remote is shared (collaborators), `pull` first so derived state
    reflects their artifacts, and **check for drift** (see "Drift" above) before trusting
    what's on disk. Site built to target but no `docs/website/deploy.md` and target is
    deploy? Pick up at the first-build checkpoint. Everything exists and the driver wants
    changes? That's **Changing a live site** (above).
-4. Read that stage's detail file and run it.
+6. Read that stage's detail file and run it.

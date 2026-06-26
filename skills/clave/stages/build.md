@@ -1,7 +1,8 @@
 # Stage: Build
 
 **Reads:** `docs/website/brief.md` + `docs/website/design.md` + `docs/voice.md`.
-**Writes:** the Astro site in the site root (see SKILL.md "Where this runs").
+**Writes:** the Astro site in the site root (see SKILL.md "Where this runs"), and
+`.clave/clave.json` (the version ledger — see [record the building version](#record-the-building-version)).
 
 **Prereq:** **pnpm** (via corepack — the scaffold activates it; nothing installed
 globally) and, if the [target](../SKILL.md#target) has a git remote, **git** + a remote
@@ -132,3 +133,22 @@ section if the brief has no `## Lead capture`.**
 - [ ] **Stop for first-build review** — show the driver the dev URL + screenshots
       → this is where look and copy get iterated (the three lanes — see SKILL.md); take
         feedback as a batch, apply, re-shoot, repeat
+
+## Record the building version
+
+Once the build succeeds (smoke passes), write your **installed** version (`SKILL.md`
+frontmatter `version:`) into `.clave/clave.json` as `claveVersion` — creating the file on a
+brand-new site, updating it on a rebuild. This is the version that *actually built* the
+site, so:
+
+- Write it only after a successful build, and only the version **running this session** —
+  never a version merely downloaded via an accepted update offer (that takes effect next
+  session; see [SKILL.md Skill versioning](../SKILL.md#skill-versioning-keeping-clave-current)).
+- **Preserve any `pinVersion`** already in the file — it's a human-set field; only touch
+  `claveVersion`.
+- `.clave/clave.json` is committed by default (it rides into the pre-deploy save); only
+  `.clave/scratch/` is gitignored.
+
+```json
+{ "claveVersion": "0.1.0" }
+```
