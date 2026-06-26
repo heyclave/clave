@@ -8,6 +8,13 @@
 name = "clave-site"
 compatibility_date = "2026-06-15"
 
+# Cloudflare account this site deploys to. The first deploy fills this in (from
+# `wrangler whoami`) and commits it — it pins the deploy to one account so a
+# collaborator on a different account can't silently fork the site. It's a
+# coordinate, not a secret (you can't authenticate with it). Leave blank until
+# the first deploy; do NOT hardcode — it's per-owner. See stages/deploy.md.
+# account_id = ""
+
 # Lead capture: uncomment to make worker/index.js own POST /api/lead. Must stay
 # above [assets] (a bare key after a table header would bind to that table).
 # main = "worker/index.js"

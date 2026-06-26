@@ -10,6 +10,12 @@ deploy` uploads `./dist` directly. Check `wrangler whoami` on entry; if unauthen
 the account's wrong, see
 [troubleshooting/prerequisites.md](../troubleshooting/prerequisites.md).
 
+**Account pin (re-deploys):** if `wrangler.toml` already has `account_id` (set on the first
+deploy), confirm the current login can reach it — otherwise deploying would silently stand up
+a separate copy under the wrong account. The check is *"does `whoami` list the pinned
+`account_id`?"*, not string-matching the email. Mismatch → **stop**, don't deploy:
+[troubleshooting/deploy-account.md](../troubleshooting/deploy-account.md).
+
 ## Preconditions checklist (all required before deploying)
 
 - [ ] **Driver has explicitly approved this deploy** — say what will ship (project, target,
@@ -45,6 +51,12 @@ pnpm deploy            # = astro build && wrangler deploy
 Set `name` in `wrangler.toml` to the project name before the first deploy — it becomes the
 `<name>.workers.dev` subdomain and the dashboard project. The owner is already
 authenticated via `wrangler login`; if not, have them run it (`! wrangler login`).
+
+Also **uncomment and fill `account_id`** in `wrangler.toml` from `wrangler whoami` (one
+account → use it; several → ask the owner which, in plain terms), and commit it. This pins
+the deploy to one account so a later collaborator on a different account can't fork the site
+([troubleshooting/deploy-account.md](../troubleshooting/deploy-account.md)). It's a
+coordinate, not a secret.
 
 ## Custom domain (strongly recommended)
 
@@ -122,10 +134,25 @@ Confirm the live URL loads and renders on mobile, then write `docs/website/deplo
 # Deploy
 
 - Target: cloudflare-workers
+
+## Canonical deployment
+<!-- The one copy that owns `site`, the custom domain, and the SEO identity. -->
+- Account ID: <account_id from wrangler.toml — the account this lives under>
 - Project: <name from wrangler.toml>
 - URL: <live url — custom domain if attached, else *.workers.dev>
 - Last deployed: <YYYY-MM-DD>
 - QA passed: <YYYY-MM-DD>
+
+<!--
+## Mirrors
+Add a block per non-canonical copy under another account. A mirror's pages still
+point their canonical/OG URLs at the canonical deployment above (it's a duplicate to
+search engines) — second-class by construction. See troubleshooting/deploy-account.md.
+- Account ID: <other account>
+- Project: <name>
+- URL: <*.workers.dev under that account>
+- Last deployed: <YYYY-MM-DD>
+-->
 
 ## Lead capture
 <!-- Omit this whole section if the site has no capture form. -->
