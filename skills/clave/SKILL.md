@@ -204,12 +204,18 @@ gets fewer stops and plain narration.
   current state (and pushes, if the target has a remote) — so the saved/pushed state
   always equals what's live, and the git history reads as exactly the sequence of what
   shipped. The agent runs git itself; the owner never types it. Narrate it plainly —
-  *"Saved this version before publishing"* — not in git jargon. This is the **only**
-  routine commit: iteration in between stays uncommitted (polish is "change freely, no
-  ceremony"), squashed into one meaningful "what we shipped" save at deploy. A run that
-  never deploys (explore, build-only) never commits — its state is the working tree; say
-  so if the driver opted out of a remote. Stuck (no remote yet, push rejected, "what's a
-  commit?") → [troubleshooting/git.md](troubleshooting/git.md).
+  *"Saved this version before publishing"* — not in git jargon. This is the **main**
+  routine commit (the handoff save below is the other): iteration in between stays
+  uncommitted (polish is "change freely, no ceremony"), squashed into one meaningful "what
+  we shipped" save at deploy. A run that never deploys (explore, build-only) never commits —
+  its state is the working tree; say so if the driver opted out of a remote. Stuck (no
+  remote yet, push rejected, "what's a commit?") →
+  [troubleshooting/git.md](troubleshooting/git.md).
+- **Handoff save** (collaboration) — the *one other* routine commit: when the driver stops
+  mid-work for someone else (or another machine) to continue, commit-and-push the current
+  tree to pass an unfinished baton (see
+  [Collaboration](#collaboration-multi-player-over-git)). The commit message says what's
+  done and what's left. Explicit, not automatic — nothing commits in between.
 - **Per-artifact approval** (discovery, brief, design spec, voice) — for drivers who
   want to shape every word. Default: off; turn on when asked.
 
@@ -307,6 +313,38 @@ fix doesn't re-audit the whole site), get the explicit deploy go-ahead again, re
 and refresh `docs/website/deploy.md`. Reversing shipped state still goes through the
 Revision lane — edit the spec, then rebuild; the spec edit in git is the record.
 
+## Collaboration (multi-player over git)
+
+Two people (or one person, two machines) work the same site through a **shared git remote —
+no Clave server**. What crosses between them is **a pushed commit and nothing more**; the
+conversation never travels, so a resumer picks up purely from committed artifacts (specs,
+site, `.clave/`), exactly as any resume does.
+
+- **The baton — one writer at a time.** No lock exists; it's a convention git keeps honest
+  (a non-fast-forward push is rejected). The normal sync is **`git pull --rebase`** — fetch
+  before working, and if origin moved, rebase onto it and say what changed (the **review**
+  below). A rebase *conflict* means the baton was broken (two people at once): resolve per
+  [troubleshooting/git.md](troubleshooting/git.md#merge-conflicts-the-collaboration-seam) —
+  spec wins, and a spec-silent conflict is **surfaced to the driver, never auto-resolved**.
+  Clave warns only on *pushed* movement; it **cannot** see someone editing live elsewhere —
+  say so plainly rather than imply otherwise.
+- **Hand off mid-work — the handoff save.** A *second* deliberate commit beside the deploy
+  save (see Checkpoints): commit-and-push the current tree to pass an unfinished baton. No
+  separate note — the **commit message** carries "what's done / what's left"; write it in
+  Clave's own technical terms (the resumer translates to the driver's register, like it
+  does for markup). Iteration in between still stays uncommitted.
+- **Review is a lens, not a gate.** On any resume that follows someone else's work, diff
+  since your local HEAD (`HEAD..origin/main` before rebasing) and **narrate what changed**
+  in the driver's register before proposing the next stage. Nothing is approved or blocked —
+  the baton was the gate.
+- **Onboarding & deploy access.** Inviting a git collaborator (`gh`) and the
+  Cloudflare-vs-git access split live in
+  [troubleshooting/git.md](troubleshooting/git.md#adding-a-collaborator-grant-access); the
+  clone-and-go entry lives in [troubleshooting/collaboration.md](troubleshooting/collaboration.md).
+  Deploy **secrets never travel in git**; the public deploy *coordinates* in
+  `docs/website/deploy.md` do (so a resumer knows the site is live and a deploy is a
+  *re-deploy*), but a collaborator without Cloudflare access hands the publish leg back.
+
 ## File authority (don't clobber human work)
 
 Spec files under `docs/` are the source of truth, and humans edit them too — treat them as
@@ -333,16 +371,21 @@ is the Revision rule — *go backward only by editing a spec* — not a parallel
 
 ## Start here
 
-1. Probe the project in **one compound call**, not six round-trips:
+1. **Entry mode.** Two ways in (see [Collaboration](#collaboration-multi-player-over-git)):
+   *start from scratch* (the default — you're in, or will create, the site dir) or *resume
+   from a remote* (the driver gave a git URL). For resume-from-remote, **clone first** and
+   verify it's a Clave site, then fall into the probe below —
+   [troubleshooting/collaboration.md](troubleshooting/collaboration.md).
+2. Probe the project in **one compound call**, not six round-trips:
    ```bash
    ls -a; git status -sb 2>/dev/null; ls docs 2>/dev/null; cat package.json 2>/dev/null; cat .clave/clave.json 2>/dev/null
    ```
-2. **Enforce the pin first (hard stop, register-blind).** If `.clave/clave.json` carries a
+3. **Enforce the pin first (hard stop, register-blind).** If `.clave/clave.json` carries a
    `pinVersion` that ≠ your installed `version:` and the probe shows an existing site, **stop
    before reading the driver** — fail fast, plain words, like a failed prerequisite. See
    [Skill versioning](#skill-versioning-keeping-clave-current). No pin, or pin matches →
-   continue.
-3. Kickoff (no artifacts yet): **read the driver before you write the plan.** Set the
+   continue. (A pin travels with the repo, so it binds collaborators too.)
+4. Kickoff (no artifacts yet): **read the driver before you write the plan.** Set the
    register from the first message + the probe — calling agent, technical human, or
    non-technical owner (see [Talking to the driver](#talking-to-the-driver)); it decides
    how this run sounds and how much you show. A calling agent skips the rest of this step
@@ -354,7 +397,7 @@ is the Revision rule — *go backward only by editing a spec* — not a parallel
    ("just play with some looks" → stop after design). Proceed unless corrected — a wrong
    guess costs one correction, not a battery of questions. Ask whether existing materials
    are available (point them at `docs/assets/`), then go.
-4. **Offer an update, then migrate** (now the register is set — see
+5. **Offer an update, then migrate** (now the register is set — see
    [Skill versioning](#skill-versioning-keeping-clave-current)): check for a newer Clave and
    **offer** it in register-appropriate words (always prompt, never auto-apply; an accepted
    update lands for **next** session and does **not** advance `claveVersion` this run). Then,
@@ -362,11 +405,13 @@ is the Revision rule — *go backward only by editing a spec* — not a parallel
    [troubleshooting/migrate.md](troubleshooting/migrate.md) and walk the site forward to the
    **running** version. Both are no-ops on a brand-new site (no `clave.json` yet) and the
    migrate is a no-op until the first breaking release.
-5. Look in `docs/` — the next stage is the first whose artifact is missing, **capped at
+6. Look in `docs/` — the next stage is the first whose artifact is missing, **capped at
    the target's terminal stage** (read it from the top of `brief.md`; absent → re-ask,
-   default deploy). If a remote is shared (collaborators), `pull` first so derived state
-   reflects their artifacts, and **check for drift** (see "Drift" above) before trusting
-   what's on disk. Site built to target but no `docs/website/deploy.md` and target is
-   deploy? Pick up at the first-build checkpoint. Everything exists and the driver wants
-   changes? That's **Changing a live site** (above).
-6. Read that stage's detail file and run it.
+   default deploy). If a remote is shared (collaborators): `git fetch`, and if origin
+   moved, **narrate what changed** since your local HEAD (`HEAD..origin/main`) in the
+   driver's register — the review lens — *then* `git pull --rebase` (see
+   [Collaboration](#collaboration-multi-player-over-git)). **Check for drift** (see "Drift"
+   above) before trusting what's on disk. Site built to target but no
+   `docs/website/deploy.md` and target is deploy? Pick up at the first-build checkpoint.
+   Everything exists and the driver wants changes? That's **Changing a live site** (above).
+7. Read that stage's detail file and run it.

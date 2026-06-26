@@ -46,7 +46,14 @@ This uses the [`skills`](https://github.com/vercel-labs/skills) installer (it ru
 
 ## Build something
 
-Once installed, the skill is active. Ask for a website in plain language — *"build me a
-site for my bakery"* — and follow along. The skill drives the pipeline, checks in at the
-points that matter, and keeps the system of record in `docs/`. From here on, Clave's own
-instructions take over; this page has done its job.
+Once installed, the skill is active. There are two ways in:
+
+- **Start from scratch** — no site yet. Ask for a website in plain language — *"build me a
+  site for my bakery"* — and follow along.
+- **Resume from a remote** — someone shared a Clave site's git URL (a collaborator handing
+  off, or you on a second machine). Give the agent the URL — *"pick up the Clave site at
+  `<url>`"* — and it clones, checks what's been done, and continues from there.
+
+Either way the skill drives the pipeline, checks in at the points that matter, and keeps the
+system of record in `docs/`. From here on, Clave's own instructions take over; this page has
+done its job.

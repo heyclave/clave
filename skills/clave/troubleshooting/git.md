@@ -73,9 +73,42 @@ machines) change the same file** — the case the remote exists to support. When
 1. Git marks the clashing spots in the file with `<<<<<<<`, `=======`, `>>>>>>>`.
 2. Open the file, keep the right content, delete the markers. For a `docs/` spec, the
    human's intent wins (file-authority rule, SKILL.md); for built code, reconcile against
-   the spec.
+   the spec. **If no spec arbitrates** (both sides are Polish-lane — two valid tweaks to
+   the same lines, the spec is silent), **do not pick** — surface both versions to the
+   driver and let them choose. Last-writer-wins is the blind overwrite the baton exists to
+   prevent.
 3. `git add <file>` then `git commit` to finish the merge, and re-run QA before any
    redeploy — a merge can break what each side individually passed.
 
 If a conflict is beyond a quick reconcile, surface it to the driver with both versions
 rather than guessing — losing someone's work silently is worse than pausing.
+
+## Adding a collaborator (grant-access)
+
+Bringing a second person onto the repo so they can push — what makes the baton possible.
+It's **outward-facing**, so confirm before running it (like the deploy go-ahead): *"Add Sam
+(github: samj) as a collaborator? They'll be able to push changes."*
+
+- **With `gh`:** `gh api repos/{owner}/{repo}/collaborators/{username} -X PUT` sends the
+  invite (same `gh`-first pattern as repo creation).
+- **Without `gh`:** point the owner at the repo's **Settings → Collaborators → Add people**
+  on GitHub.
+
+Either way it's an **invitation the invitee must accept** (they get a notification) — it is
+*not* instant access. Say so: *"I've invited Sam — once they accept, they can pick up the
+site."* Don't imply they can push immediately.
+
+## Deploy access vs. git access (they're separate)
+
+Git push rights and Cloudflare deploy rights are **two different access systems**. A git
+collaborator can do everything up to deploy, but `wrangler deploy` needs Cloudflare auth for
+the owner's account, which a collaborator may not have. **Deploy secrets never travel in
+git** (no tokens in the repo, ever). The public deploy *coordinates* do travel — they live
+in committed `docs/website/deploy.md` (Target / Project / URL), so a collaborator can see
+*where* the site publishes and that a deploy is a **re-deploy**, even without the creds to
+run it.
+
+When a collaborator without Cloudflare access reaches deploy: name where it would publish
+(from the coordinates), then name the boundary — either the owner deploys, or grants
+Cloudflare access on their side (out of Clave's reach; explain, don't attempt). The publish
+leg can hand back to the owner via a handoff save in the other direction.
