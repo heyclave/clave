@@ -32,5 +32,15 @@ const imageURL = image && Astro.site ? new URL(image, Astro.site) : undefined;
   </head>
   <body class="bg-background font-body text-body antialiased">
     <slot />
+    <!--
+      Analytics: uncomment ONLY when the pre-ship gate adds it (stages/preship.md).
+      Cloudflare Web Analytics — cookieless, no consent banner. The token is a public
+      coordinate (like the Turnstile sitekey), fine to commit. Paste the site token from
+      the dashboard; no `spa` flag (this is a static site). Absent = no beacon, no tracking.
+    -->
+    <!--
+    <script defer src="https://static.cloudflareinsights.com/beacon.min.js"
+            data-cf-beacon='{"token": "PASTE_SITE_TOKEN"}'></script>
+    -->
   </body>
 </html>

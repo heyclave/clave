@@ -1,8 +1,13 @@
 # Stage: Deploy
 
 **Reads:** the built site. **Writes:** `docs/website/deploy.md` (target, project, URL, QA
-date, plus capture fields when lead capture exists). One target for now; add others as
+date, plus capture fields when lead capture exists, plus an analytics block when the
+[pre-ship gate](preship.md) added it). One target for now; add others as
 `stages/deploy-<target>.md` siblings without touching upstream stages.
+
+**Analytics is the pre-ship gate's job, not deploy's** — offered and wired before this stage
+([stages/preship.md](preship.md)); deploy only ships the `./dist` that already carries the
+beacon and records the `## Analytics` block below. Don't re-offer it here.
 
 **Prereq:** the owner **authenticated to their own Cloudflare account** (`wrangler` itself
 is already a site dependency — nothing to install). Deploy needs **no git**: `wrangler
@@ -161,6 +166,13 @@ search engines) — second-class by construction. See troubleshooting/deploy-acc
 - Sending domain: <domain the From address uses>
 - Turnstile sitekey: <public sitekey>
 - Last verified: <YYYY-MM-DD a live test was confirmed received>
+
+## Analytics
+<!-- Omit this whole section unless analytics was added at the pre-ship gate.
+     Its presence is how a resume knows analytics is wired and NOT to re-offer. -->
+- Provider: cloudflare-web-analytics
+- Site token: <public token in Layout.astro — a coordinate, not a secret>
+- Added: <YYYY-MM-DD>
 ```
 
 Changing a live site uses the same three lanes (SKILL.md); the only difference is the

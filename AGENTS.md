@@ -20,7 +20,9 @@ template* and only runs in a scaffolded site — never here.
   whole product model: system of record, pipeline, the three iteration lanes, checkpoints.
   Everything else elaborates it.
 - `skills/clave/stages/*.md` — one detail file per pipeline stage (discovery, brief,
-  design, voice, build, qa, deploy). The agent reads one when it runs that stage.
+  design, voice, build, pre-ship, qa, deploy). The agent reads one when it runs that stage.
+  `pre-ship` is a *gate*, not a producing stage — the home for production-only optional
+  add-ons (analytics, etc.); it writes nothing unless one is taken.
 - `skills/clave/troubleshooting/*.md` — off-happy-path recovery (prerequisites, git,
   resync), read only when a check fails.
 - `skills/clave/design/` — `frontend-design.md`, the aesthetic playbook **vendored

@@ -1,7 +1,7 @@
 ---
 name: clave
 version: 0.1.0
-description: Build and run websites with Astro and Tailwind CSS. Keeps a system of record in docs/ — business truth at the root, site-specific specs under docs/website/ — and runs a staged build pipeline (discovery, brief, design, voice, build, qa, deploy) over it, so intent persists on disk across sessions. Use when the user wants to create, assemble, extend, or ship a website — and equally when they want to iterate on, polish, tweak, redesign, or maintain an existing one (copy changes, design changes, QA, redeploys), add a spam-filtered contact/lead-capture form, or whenever the repo has a docs/ system of record managed by this skill. Always uses Astro + Tailwind, deploys to Cloudflare. Ships with frontend-design guidance built in — no companion skills required.
+description: Build and run websites with Astro and Tailwind CSS. Keeps a system of record in docs/ — business truth at the root, site-specific specs under docs/website/ — and runs a staged build pipeline (discovery, brief, design, voice, build, qa, deploy) over it, so intent persists on disk across sessions. Use when the user wants to create, assemble, extend, or ship a website — and equally when they want to iterate on, polish, tweak, redesign, or maintain an existing one (copy changes, design changes, QA, redeploys), add a spam-filtered contact/lead-capture form, add privacy-friendly visitor analytics, or whenever the repo has a docs/ system of record managed by this skill. Always uses Astro + Tailwind, deploys to Cloudflare. Ships with frontend-design guidance built in — no companion skills required.
 ---
 
 # Clave
@@ -161,13 +161,16 @@ root.
 | `docs/assets/`            | Provided materials — logo, brand, photos, copy   | the human  |
 | `docs/website/brief.md`   | The plan for this site                           | brief      |
 | `docs/website/design.md`  | How every page looks                             | design     |
-| `docs/website/deploy.md`  | Where it runs — target, project, URL, last QA; lead-capture config when present | deploy     |
+| `docs/website/deploy.md`  | Where it runs — target, project, URL, last QA; lead-capture + analytics config when present | deploy / pre-ship |
 | site root (`src/`, `public/`, …) | The built Astro site + `.clave/clave.json` (records the building version as `claveVersion`) | build      |
 
 **State is derived — no separate status to maintain.** A stage is done when its artifact
-exists. QA is the exception: a **gate, not an artifact** — the deploy record is the
-evidence it passed. To resume: the next stage is the first whose artifact is missing; if
-the site is built but there's no deploy record, pick up at the first-build checkpoint.
+exists. Two steps are **gates, not artifact-producers**, and derived-state resume treats
+both as transparent: **qa** (the deploy record is the evidence it passed) and the **pre-ship
+gate** (it writes nothing of its own — an add-on it offers records itself, e.g. analytics in
+`deploy.md`, so its members are *derived from the add-on's* artifact, never a gate status).
+To resume: the next stage is the first whose artifact is missing; if the site is built but
+there's no deploy record, pick up at the first-build checkpoint.
 
 **Drift — the disk may not be what the pipeline assumes.** ("Drift" here means **spec↔site**
 divergence — distinct from the *version* drift in [Skill versioning](#skill-versioning-keeping-clave-current),
@@ -199,6 +202,15 @@ gets fewer stops and plain narration.
 - **Direction pick** (design stage) — choose between 2–3 skeleton directions. Default: on.
 - **First-build review** (after build's smoke check) — the site in hand, fast. Iterate
   look and copy here, before any deep audit. Default: on.
+- **Pre-ship gate** (after first-build review, before qa+deploy) — offer the
+  **production-only, optional** add-ons: analytics (default: Cloudflare Web Analytics),
+  custom domain, lead-capture go-live. Membership rule: **inert until live *and* optional**.
+  Placed here on purpose — nothing production-only is offered before the owner has a playable
+  build (time-to-playable-build). **The gate can be empty** — no add-ons to offer, no stop;
+  it only appears when it has something. **Silent no-op for a calling agent** (it can't be
+  asked and can't mint a token — acts only on intent passed in the structured prompt).
+  Derived-state, not a status field: an add-on already recorded in `deploy.md` isn't
+  re-offered. See [stages/preship.md](stages/preship.md).
 - **Pre-deploy** — always on. Never deploy without an explicit go-ahead. No preference
   can turn this off. **Save here:** right before every deploy, the agent commits the
   current state (and pushes, if the target has a remote) — so the saved/pushed state
@@ -266,12 +278,20 @@ and checks it on entry; if it's missing, see
 | design    | brief                  | `docs/website/design.md`  | [stages/design.md](stages/design.md)       |
 | voice     | brief                  | `docs/voice.md`           | [stages/voice.md](stages/voice.md)         |
 | build     | brief + design + voice | Astro site in site root   | [stages/build.md](stages/build.md)         |
+| pre-ship  | built + reviewed site  | conditional — add-on config only if one is taken | [stages/preship.md](stages/preship.md) |
 | qa        | built site + specs     | nothing — pre-deploy audit | [stages/qa.md](stages/qa.md)              |
 | deploy    | passing QA + user go-ahead | `docs/website/deploy.md`  | [stages/deploy.md](stages/deploy.md)   |
 
 Order: `discovery` (truth about product/customer) → `brief` (plan for this site) →
 `design` + `voice` (independent — either order; both read only the brief) → `build`
-(needs all three specs) → `qa` (is it broken? is it right?) → `deploy`.
+(needs all three specs) → `pre-ship` (offer production-only add-ons — analytics, etc.; a
+no-op unless one's taken) → `qa` (is it broken? is it right?) → `deploy`.
+
+**Pre-ship writes nothing on its own** — it's a gate, not a producing stage (which is why
+derived-state resume treats it as transparent: it has no artifact to key off, so the "first
+missing artifact" walk skips straight over it to qa/deploy). It only writes when an add-on is
+taken, and even then the artifact is the add-on's (e.g. the `## Analytics` block in
+`deploy.md`), not the gate's.
 
 A stage is interchangeable as long as it reads the same upstream artifacts and writes to
 the same path — e.g. a deploy variant is just `stages/deploy-<target>.md`.
