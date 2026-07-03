@@ -20,7 +20,7 @@ account lands here.
 
 ## Name it, then offer the three real intents
 
-Tell the driver plainly: *"This site is pinned to deploy under Cloudflare account `<id>`
+Tell the owner plainly: *"This site is pinned to deploy under Cloudflare account `<id>`
 (`<canonical url>`). You're logged into a different account. Deploying now would create a
 separate copy under your account, not update the live site."* Then resolve which of these
 they mean — never pick for them:
@@ -64,7 +64,7 @@ accounts, so this is *create-new + retire-old*, and Clave names the residue hone
 
 ## Removing a deployment
 
-A driver can drop a deployment they no longer want recorded — delete its block from
+An owner can drop a deployment they no longer want recorded — delete its block from
 `deploy.md` and commit. This **only removes the record.** Clave can't tear down a live Worker
 in an account it has no access to; if the deployment is live, whoever holds that account must
 delete the Worker in the Cloudflare dashboard. Say so rather than implying it's gone.

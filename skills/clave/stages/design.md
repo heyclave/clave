@@ -4,8 +4,8 @@
 **Writes:** `docs/website/design.md` (the spec) + `.clave/skeletons/` (the kept explorations).
 
 **Prereq:** **Node only** — the skeleton server is stdlib Node, run before any
-`pnpm install`. This is the terminal stage for the *explore* [target](../SKILL.md#target),
-so an explore run never needs pnpm, git, or Cloudflare at all.
+`pnpm install`. Exploring looks needs nothing else; pnpm, git, and Cloudflare all come
+later, at the stages that use them.
 
 The single source of truth for how every page looks. **Read
 [`../design/frontend-design.md`](../design/frontend-design.md) first** — it ships with this
@@ -13,7 +13,7 @@ skill and is the aesthetic playbook for direction (distinctive choices, typograp
 the generic-AI look). Then check `docs/assets/` — a provided logo or brand constrains colors
 and type; work from it, never against it.
 
-## Direction pick (checkpoint)
+## Direction pick (milestone 2)
 
 A "direction" is the 3–5 sentence aesthetic; everything else flows from it.
 
@@ -27,8 +27,9 @@ A "direction" is the 3–5 sentence aesthetic; everything else flows from it.
       ```
 - [ ] **Show them as skeletons** (below), not paragraphs
       → a page you can open is easier to judge than a paragraph; offer paragraphs-only
-        only if the driver wants speed
-- [ ] Driver picks — **checkpoint off → pick the best fit yourself**
+        only if the owner wants speed
+- [ ] **Milestone 2 of 4 — it has a look.** The owner picks: hand over the gallery URL
+      and your recommendation, ask the one question (which direction?)
 - [ ] Write the choice into `Direction` in the spec
 
 ### Skeletons checklist (design explorations)
@@ -45,7 +46,7 @@ framework server. **Kept, not thrown away** — a committed design archive to re
       mkdir -p .clave/skeletons
       ```
       → only the stdlib `scripts/skeletons.mjs` + `.clave/skeletons/_boilerplate.html` are
-        needed here; no `pnpm install` (an explore run never installs). Build re-runs this
+        needed here; no `pnpm install` (design never installs). Build re-runs this
         `cp` idempotently and *then* installs
 - [ ] **Author** — per direction, copy `.clave/skeletons/_boilerplate.html` to a
       descriptively named file `.clave/skeletons/skeleton-<letter>-<two-or-three-word-vibe>.html`
@@ -112,3 +113,5 @@ framework server. **Kept, not thrown away** — a committed design archive to re
 <One-line rulings from polish feedback — append only when something was rejected AND
 could recur on another page. Starts empty. e.g. "Don't center-align body text.">
 ```
+
+**Next:** [voice.md](voice.md) — how the brand sounds.

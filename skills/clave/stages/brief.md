@@ -13,10 +13,6 @@ Discovery is the "what's true"; the brief is the "so here's what the site does."
         the site does"
 - [ ] Tie the value proposition and CTA to discovery's job-to-be-done
 - [ ] Keep it short — a handoff, not a document
-- [ ] **Record the target** as the first line — `Target: deploy` (default), or e.g.
-      `Target: build, no remote` (see SKILL.md "Target")
-      → it's how a resumed session knows how far to go and which prereqs apply; absent
-        means re-ask
 - [ ] **Lead capture?** If the site collects enquiries, ask one question — *"Where should
       enquiries land?"* — and fill in the `## Lead capture` section. No capture → **omit
       the section entirely**
@@ -27,8 +23,6 @@ Discovery is the "what's true"; the brief is the "so here's what the site does."
 
 ```markdown
 # Brief — <Project Name>
-
-Target: <deploy | build, no remote | design — how far this run goes; see SKILL.md>
 
 ## Site purpose
 <One sentence: what this website is for, derived from the product's job-to-be-done.>
@@ -51,3 +45,11 @@ Target: <deploy | build, no remote | design — how far this run goes; see SKILL
 ## Constraints / notes
 <Brand, content, tone, must-haves, must-avoids. Omit if none.>
 ```
+
+## Milestone 1 of 4 — the plan
+
+Present the site in one breath — the pages and the one action everything pushes toward —
+and ask the lead-capture question if it isn't already answered. At most one question,
+then move.
+
+**Next:** [design.md](design.md) — give the plan a look.

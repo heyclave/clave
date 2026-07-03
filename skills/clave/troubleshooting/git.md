@@ -1,9 +1,9 @@
 # Troubleshooting: Saving & git
 
-Off the happy path. Read this when **saving before a deploy** hits a snag, or when the
+Off the happy path. Read this when **saving before a publish** hits a snag, or when the
 owner is new to git and needs the idea explained. On the happy path the agent just commits
-(and pushes, if there's a remote) right before each deploy — see the pre-deploy checkpoint
-in [SKILL.md](../SKILL.md) — and narrates it as "saved", never in jargon. The owner never
+(and pushes, if there's a remote) right before each publish — the ship save in
+[SKILL.md](../SKILL.md) — and narrates it as "saved", never in jargon. The owner never
 types git; the agent runs it.
 
 ## Explaining "saved" to a non-technical owner
@@ -27,7 +27,7 @@ their account (GitHub by default), under their login. Owned, not rented.
 ```bash
 git add -A
 git commit -m "<plain summary of what's shipping, e.g. 'Launch site' / 'Update pricing copy'>"
-git push          # only if the target has a remote
+git push          # only if there's a remote
 ```
 
 Commit messages are for the owner to read later — plain outcomes ("Add contact form",
@@ -36,8 +36,8 @@ committed.
 
 ## Setting up the remote (first push)
 
-The build stage normally does this. If it didn't (target gained a remote later, or it was
-skipped):
+The build stage normally does this. If it didn't (the owner declined at build and changed
+their mind, or it was skipped):
 
 - **With `gh`:** `gh repo create <name> --private --source=. --remote=origin --push`
   creates the repo on the owner's account and pushes in one step. Needs `gh auth status`
@@ -75,12 +75,12 @@ machines) change the same file** — the case the remote exists to support. When
    human's intent wins (file-authority rule, SKILL.md); for built code, reconcile against
    the spec. **If no spec arbitrates** (both sides are Polish-lane — two valid tweaks to
    the same lines, the spec is silent), **do not pick** — surface both versions to the
-   driver and let them choose. Last-writer-wins is the blind overwrite the baton exists to
+   owner and let them choose. Last-writer-wins is the blind overwrite the baton exists to
    prevent.
-3. `git add <file>` then `git commit` to finish the merge, and re-run QA before any
-   redeploy — a merge can break what each side individually passed.
+3. `git add <file>` then `git commit` to finish the merge, and re-run the ship audit
+   before any redeploy — a merge can break what each side individually passed.
 
-If a conflict is beyond a quick reconcile, surface it to the driver with both versions
+If a conflict is beyond a quick reconcile, surface it to the owner with both versions
 rather than guessing — losing someone's work silently is worse than pausing.
 
 ## Adding a collaborator (grant-access)
@@ -104,11 +104,11 @@ Git push rights and Cloudflare deploy rights are **two different access systems*
 collaborator can do everything up to deploy, but `wrangler deploy` needs Cloudflare auth for
 the owner's account, which a collaborator may not have. **Deploy secrets never travel in
 git** (no tokens in the repo, ever). The public deploy *coordinates* do travel — they live
-in committed `docs/website/deploy.md` (Target / Project / URL), so a collaborator can see
+in committed `docs/website/deploy.md` (Platform / Project / URL), so a collaborator can see
 *where* the site publishes and that a deploy is a **re-deploy**, even without the creds to
 run it.
 
-When a collaborator without Cloudflare access reaches deploy: name where it would publish
+When a collaborator without Cloudflare access reaches ship: name where it would publish
 (from the coordinates), then name the boundary — either the owner deploys, or grants
 Cloudflare access on their side (out of Clave's reach; explain, don't attempt). The publish
 leg can hand back to the owner via a handoff save in the other direction.

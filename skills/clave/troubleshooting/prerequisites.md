@@ -3,16 +3,16 @@
 Off the happy path. Read this **only when a stage's prereq check fails** — most machines
 already have what they need, and a stage that finds its tool present never sends you here.
 Each prereq is checked lazily, by the first stage that needs it (see the per-stage
-**Prereq** notes), so what's required depends on how far the [target](../SKILL.md#target)
-goes: exploring skeletons needs only Node; building locally adds pnpm; publishing adds git
-and Cloudflare. Don't pre-install for a road you're not walking.
+**Prereq** notes), so what's required depends on how far the run has gone: exploring
+looks needs only Node; building adds pnpm and git; publishing adds Cloudflare. Don't
+pre-install for a road you're not walking.
 
 For every prereq below: **how to check it's there**, **how to check it's recent enough**,
 and **what to do if it's missing or too old** — written for a non-technical owner, not a
 developer. Don't improvise a different install method on someone's machine; point them at
 the plain installer and stop there.
 
-## Node.js — needed by every target
+## Node.js — needed by every stage
 
 Node provides `node`, `npx`, and `corepack`. It's the one thing that can't self-install.
 
@@ -24,11 +24,11 @@ Node provides `node`, `npx`, and `corepack`. It's the one thing that can't self-
   Homebrew or nvm, which assume a developer setup. Installing LTS over an old version
   upgrades it. Re-run `node --version` to confirm before continuing.
 
-## git — needed to publish (and for any remote / multi-machine work)
+## git — needed from build on (the saves, the remote, multi-machine work)
 
-git versions the source and the `docs/` system of record, and is the transport for the
-owner's remote (see the git-remote step in [build](../stages/build.md)). A purely local,
-throwaway site doesn't strictly need it; **anything that leaves one machine does.**
+git versions the source and the `docs/` system of record — the ship save lands in it —
+and is the transport for the owner's remote (see the git-remote step in
+[build](../stages/build.md)).
 
 - **Check:** `git --version` prints e.g. `git version 2.43.0`.
 - **macOS gotcha:** macOS ships a *stub* at `/usr/bin/git`. Running `git --version` on a
@@ -81,35 +81,7 @@ to be **authenticated** to their own Cloudflare account.
 - **Check:** `pnpm exec wrangler whoami` prints the authenticated account/email.
 - **Auth expired / wrong account:** `wrangler logout` then `wrangler login` again, picking
   the right account. Custom-domain and lead-capture (Email Sending, Turnstile) setup is a
-  separate guided session — see [deploy.md](../stages/deploy.md), not here.
+  separate guided session — see [ship.md](../stages/ship.md), not here.
 
-## Skill version pin — advanced, power-user only
-
-Unlike everything above, this is **not** for a non-technical owner — it's a deliberate
-power-user control, and it's the one prereq the *skill imposes on itself*. A site can
-**pin** which Clave version may run against it by adding `pinVersion` to `.clave/clave.json`
-**by hand**:
-
-```json
-{ "claveVersion": "0.1.0", "pinVersion": "0.1.0" }
-```
-
-The skill **reads and enforces** the pin but never offers to set or clear it — setting and
-removing are both manual JSON edits. See
-[SKILL.md Skill versioning](../SKILL.md#skill-versioning-keeping-clave-current) for the
-model (why a pin constrains the *tool*, never the built site).
-
-**When kickoff stops on a pin** (`pinVersion ≠ the installed skill's `version:``): the wrong
-Clave is installed for this pinned site. Resolve by moving the **install** to the pin — not
-the site, and not the pin:
-
-- Re-install the skill at the pinned version, or `git checkout` the Clave repo at its
-  matching tag (`vX.Y.Z`) and re-point the install there. (The `skills` tool versions by
-  content hash, not ref, so a tagged checkout of the source is the reliable way to land an
-  exact version.)
-- Then re-run — installed now equals the pin, and the stop clears.
-- To **stop pinning** instead, delete the `pinVersion` line; the site floats to latest again
-  (and the next update offer returns).
-
-Never edit `claveVersion` by hand to dodge a stop — it records what built the site and is
-maintained by the build stage; only `pinVersion` is yours to set.
+Version pins, update offers, and migration live in [versioning.md](versioning.md), not
+here — a pin stop looks like a failed prereq but is the skill's own doing.

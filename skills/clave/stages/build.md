@@ -5,8 +5,8 @@
 `.clave/clave.json` (the version ledger — see [record the building version](#record-the-building-version)).
 
 **Prereq:** **pnpm** (via corepack — the scaffold activates it; nothing installed
-globally) and, if the [target](../SKILL.md#target) has a git remote, **git** + a remote
-host account. Check on entry; if either is missing or too old, see
+globally) and **git** (for the saves; the remote below also wants a GitHub account).
+Check on entry; if either is missing or too old, see
 [troubleshooting/prerequisites.md](../troubleshooting/prerequisites.md) and guide the owner
 through it before scaffolding.
 
@@ -27,7 +27,7 @@ looks, `voice.md` how it reads, `brief.md` the job, value prop, and CTA.
         skeletons before `pnpm install`), the `cp` just refreshes; this is the run that
         installs. `corepack enable pnpm` is a shim for the version `package.json` pins via
         `packageManager`, not a global install; `pnpm install` writes `pnpm-lock.yaml`,
-        which is **tracked** (the lockfile is the pin) and rides into the pre-deploy save
+        which is **tracked** (the lockfile is the pin) and rides into the ship save
 - [ ] **Merge**, don't overwrite, if `AGENTS.md`/`CLAUDE.md` already exist — they're
       human-owned; the template ships them so future sessions auto-load the skill
 - [ ] **Never bump to `@latest` while building** — the template pins a set verified
@@ -41,45 +41,35 @@ The template provides:
 - `pnpm shots [route ...]` — self-contained mobile + desktop screenshots to `.qa/`.
 - `pnpm smoke` — `check` + `build` + `shots` in one call.
 - `pnpm audit [route ...]` — axe-core accessibility scan.
-- `pnpm deploy` — `build` + `wrangler deploy` (Cloudflare Workers static assets; the
-  template ships an assets-only `wrangler.toml`). Owned by the deploy stage, not here.
+- `pnpm deploy` — `build` + `wrangler deploy`. Owned by the ship stage, not here.
 - `pnpm dev:full` — `build` + `wrangler dev`; runs the lead-capture worker locally
   (only meaningful on sites with a form). Plain `pnpm dev` stays the look-and-feel loop.
 - Design tokens in the `@theme` block of `src/styles/global.css` (no `tailwind.config`).
 - Technical SEO baked in (canonical + Open Graph, sitemap, robots, 404) — activates once
   `site` is set in `astro.config.mjs`.
 
-## Version control & remote (target-gated)
+## Version control & remote
 
 The source and the `docs/` system of record are the durable, owned truth — version them.
-What happens here is **gated by the [target](../SKILL.md#target)**; it's the same mechanism
-(clone, pull, push) whether one person picks the site up on a second machine or several
-collaborate.
 
-- [ ] **Always (any target past explore):** `git init` if not already a repo — so a
-      repository exists for a remote to attach to and for the pre-deploy save to land in
-      → the guaranteed save is before deploy (the only routine commit); an initial commit
-        here is fine but optional, don't commit through iteration
+- [ ] `git init` if not already a repo — so the ship save has somewhere to land
+      → the guaranteed save is before every publish (the one routine commit); an initial
+        commit here is fine but optional, don't commit through iteration
+- [ ] **Offer the off-site copy once, plainly:** *"Want me to keep a saved copy of the
+      site on your own account, so it survives this computer and someone you trust could
+      pick it up?"* — an owner who declines can add it later, losslessly (the road just
+      extends). On yes, default to **GitHub** (best agent tooling; free private repos),
+      on the owner's own account — owned, not rented. With `gh` installed:
+      ```bash
+      gh repo create <name> --private --source=. --remote=origin --push
+      ```
+      Without `gh`: the owner creates an empty private repo in the web UI, then
+      `git remote add origin <url> && git push -u origin main`. Prereqs (git, a free
+      account, optional `gh`):
+      [troubleshooting/prerequisites.md](../troubleshooting/prerequisites.md).
 
-Then, by target:
-
-- **Target has a git remote** (default for publish): give the owned truth an off-laptop
-  home on **the owner's own account** — owned, not rented; never a Clave-hosted pool.
-  Default to **GitHub** (best agent tooling; free private repos). With `gh` installed:
-  ```bash
-  gh repo create <name> --private --source=. --remote=origin --push
-  ```
-  Without `gh`: the owner creates an empty private repo in the web UI, then
-  `git remote add origin <url> && git push -u origin main`. Either way it stays a plain git
-  remote underneath — GitLab/Codeberg/self-hosted are swappable siblings, like deploy
-  targets. Prereqs (git, a free account, optional `gh`):
-  [troubleshooting/prerequisites.md](../troubleshooting/prerequisites.md).
-- **Target has no remote:** the pre-deploy save still happens, it just stays a local
-  commit — don't push, don't ask for an account. The driver opted out; the road extends
-  losslessly later if they change their mind (add the remote, push what's there).
-
-This is independent of deploy: a remote is where the *source* lives; Cloudflare (deploy)
-serves the *built site* and needs no git. They're separate decisions.
+This is independent of publishing: the remote is where the *source* lives; Cloudflare
+(ship) serves the *built site* and needs no git. They're separate decisions.
 
 ## Build rules checklist
 
@@ -114,23 +104,25 @@ section if the brief has no `## Lead capture`.**
 - [ ] **Config** — in `wrangler.toml`, uncomment `main`, `binding`, `run_worker_first`,
       `[[send_email]]`, and `[vars]`; set `LEAD_TO` (brief's notification address) and
       `LEAD_FROM` (an address on the verified sending domain — placeholder fine until the
-      domain is onboarded at deploy)
+      domain is onboarded at ship)
       → `binding`/`run_worker_first` ship commented (an assets-only site must omit
         `binding`); a form needs all five uncommented. The **Turnstile secret is *not* a
-        var** — deploy stores it via `wrangler secret put`, so leave it out of `[vars]`
+        var** — ship stores it via `wrangler secret put`, so leave it out of `[vars]`
 - [ ] **Test locally** — `cp dev.vars.example .dev.vars` (gitignored; ships Turnstile test
       keys that always pass), then `pnpm dev:full` to exercise the form
-      → email isn't sent locally — live delivery is verified at QA/deploy; plain `pnpm dev`
+      → email isn't sent locally — live delivery is verified at ship; plain `pnpm dev`
         stays the look-and-feel loop
 
-## Smoke check, then stop for first-build review
+## Smoke check, then milestone 3
 
 - [ ] Run `pnpm smoke` (`check` + `build` + `shots`)
 - [ ] Read `.qa/`: tokens match `design.md`, no horizontal scroll, nothing cut off or
       overlapping
 - [ ] Fix the clearly-broken and repeat
-      → this is a smoke check, **not an audit** — the heavy qa stage runs once, at ship time
-- [ ] **Stop for first-build review** — show the driver the dev URL + screenshots
+      → this is a smoke check, **not an audit** — the heavy audit runs once, at ship time
+- [ ] **Milestone 3 of 4 — it's real.** Show the owner the dev URL + screenshots and
+      invite changes: *"This is the best moment to change things — words, pictures,
+      colours, layout. Nothing is precious yet."*
       → this is where look and copy get iterated (the three lanes — see SKILL.md); take
         feedback as a batch, apply, re-shoot, repeat
 
@@ -143,12 +135,14 @@ site, so:
 
 - Write it only after a successful build, and only the version **running this session** —
   never a version merely downloaded via an accepted update offer (that takes effect next
-  session; see [SKILL.md Skill versioning](../SKILL.md#skill-versioning-keeping-clave-current)).
+  session; see [troubleshooting/versioning.md](../troubleshooting/versioning.md)).
 - **Preserve any `pinVersion`** already in the file — it's a human-set field; only touch
   `claveVersion`.
-- `.clave/clave.json` is committed by default (it rides into the pre-deploy save); only
+- `.clave/clave.json` is committed by default (it rides into the ship save); only
   `.clave/scratch/` is gitignored.
 
 ```json
 { "claveVersion": "0.1.0" }
 ```
+
+**Next:** [ship.md](ship.md) — when the owner wants to go live: audit, then publish.

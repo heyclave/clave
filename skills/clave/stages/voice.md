@@ -40,3 +40,5 @@ Plain language, short sentences. Never hypey or jargon-heavy.">
 - ❌ <generic/feature-led line>
 - ✅ <rewritten in this voice, outcome-led>
 ```
+
+**Next:** [build.md](build.md) — build the site against all three specs.

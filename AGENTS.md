@@ -16,13 +16,14 @@ template* and only runs in a scaffolded site — never here.
 
 ## Layout
 
-- `skills/clave/SKILL.md` — the entry point and the one file to read first. It defines the
-  whole product model: system of record, pipeline, the three iteration lanes, checkpoints.
-  Everything else elaborates it.
+- `skills/clave/SKILL.md` — the entry point and the one file to read first. It's a
+  **manifest, deliberately slim**: the product model (system of record, the three
+  iteration lanes, milestones, the one-owner voice) plus an index of every other file.
+  Stage mechanics live in the stage files, disclosed one at a time — each ends with a
+  **Next** line naming the following stage; don't re-inline the road into SKILL.md.
 - `skills/clave/stages/*.md` — one detail file per pipeline stage (discovery, brief,
-  design, voice, build, pre-ship, qa, deploy). The agent reads one when it runs that stage.
-  `pre-ship` is a *gate*, not a producing stage — the home for production-only optional
-  add-ons (analytics, etc.); it writes nothing unless one is taken.
+  design, voice, build, ship). The agent reads one when it runs that stage; `ship` is
+  audit + publish in one file.
 - `skills/clave/troubleshooting/*.md` — off-happy-path recovery (prerequisites, git,
   resync), read only when a check fails.
 - `skills/clave/design/` — `frontend-design.md`, the aesthetic playbook **vendored
@@ -63,7 +64,11 @@ When editing it, three things matter:
   states a rule *and why it exists*. Keep that density; don't pad with generic advice.
 - **The product model is defined in SKILL.md — read it before editing a stage.** A stage
   file's correctness depends on the whole model (system of record, three lanes,
-  checkpoints), and you can't change one coherently without holding it.
+  milestones), and you can't change one coherently without holding it.
+- **One owner, one road (ADR 0005).** The skill is written for exactly one user — a
+  non-technical owner — and one provider per role (Cloudflare hosts, GitHub is the
+  remote). Don't reintroduce registers, target dials, or sibling-provider prose into the
+  skill; generality gets deleted here, not documented.
 - **Tables in SKILL.md are contracts.** If you change a stage's inputs/outputs or a file's
   role, update the matching row in SKILL.md's tables in the *same* edit. Drift between a
   stage and those tables is the main failure mode.
@@ -71,5 +76,17 @@ When editing it, three things matter:
   and the stage files. Anything off it — prerequisite install, failure recovery, API drift
   — goes in `troubleshooting/*.md`, linked from the one inline line that triggers it. Don't
   inline it back.
-- **New deploy targets are siblings, not edits.** Add `stages/deploy-<target>.md` next to
-  the default rather than branching the existing deploy stage. Same for any swappable stage.
+- **New deploy targets are siblings, not edits.** If a second target ever earns its way
+  in, add `stages/ship-<target>.md` next to the default rather than branching the
+  existing ship stage — the seam is the file layout, not prose in the skill. Same for any
+  swappable stage.
+
+## Non-goals
+
+Deliberate, settled — don't reopen them from review notes without a new ADR:
+
+- **Monorepo site placement** — one site is one repo; the site root is the repo root.
+- **i18n** — single-locale (`lang="en"`) is the assumption, not an oversight.
+- **Blog / docs / content collections** — Clave builds landing and marketing sites.
+- **Alternative stacks or hosts in skill prose** — Astro + Tailwind + Cloudflare + GitHub,
+  full stop (the sibling-file seam above is the extension point).

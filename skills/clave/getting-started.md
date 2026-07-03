@@ -7,10 +7,11 @@ this page alone — you don't need to install anything to understand what Clave 
 
 ## What Clave is
 
-Clave is a skill for **building and running websites** — Astro + Tailwind CSS, deployed to
-Cloudflare. Once installed, you build a site by following a staged pipeline (discovery →
-brief → design → voice → build → QA → deploy) and keeping a **system of record in `docs/`**,
-so the site's intent lives on disk and survives across sessions. It ships with
+Clave is a skill for **building and running websites** — landing and marketing sites with
+Astro + Tailwind CSS, deployed to Cloudflare. Once installed, you build a site by following
+a staged pipeline (discovery → brief → design → voice → build → ship) and keeping a
+**system of record in `docs/`**, so the site's intent lives on disk and survives across
+sessions. It ships with
 frontend-design guidance built in — no companion skills to install.
 
 It suits someone who wants a real, owned, production website — a landing or marketing site,
@@ -54,6 +55,6 @@ Once installed, the skill is active. There are two ways in:
   off, or you on a second machine). Give the agent the URL — *"pick up the Clave site at
   `<url>`"* — and it clones, checks what's been done, and continues from there.
 
-Either way the skill drives the pipeline, checks in at the points that matter, and keeps the
-system of record in `docs/`. From here on, Clave's own instructions take over; this page has
+Either way the skill drives the pipeline, checks in at four milestones (the plan, the look,
+a clickable site, going live), and keeps the system of record in `docs/`. From here on, Clave's own instructions take over; this page has
 done its job.

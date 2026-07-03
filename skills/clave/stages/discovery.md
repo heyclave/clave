@@ -40,3 +40,5 @@ plan.
 ## Proof points
 <Evidence that backs the claims — outcomes, numbers, testimonials, credentials. Omit if none.>
 ```
+
+**Next:** [brief.md](brief.md) — turn what's true into the plan for this site.

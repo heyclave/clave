@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Serve the design skeletons in .clave/skeletons/ over http:// so the driver can
+// Serve the design skeletons in .clave/skeletons/ over http:// so the owner can
 // open and compare them in a browser. Stdlib only — no dependency, no download, no build.
 // Astro is not involved; skeletons are plain self-contained HTML.
 //

@@ -10,7 +10,7 @@ by an older Clave; this file is how the *running* skill walks it forward.
   predates the notes for migrating *off* itself, so the *from* comes from the site's
   `claveVersion` and the *path* comes from you, the newer skill.
 - You migrate against the **version running this session** — the one in your context. If
-  the driver accepted an update offer at kickoff, that newer version landed on disk for
+  the owner accepted an update offer at kickoff, that newer version landed on disk for
   *next* session and is **not** what you migrate to now. Never migrate to a version you
   aren't running.
 - Apply every entry below whose boundary you **cross**, in ascending order, from
@@ -25,7 +25,7 @@ by an older Clave; this file is how the *running* skill walks it forward.
 **No migrations yet — every version through the current release is backwards-compatible.**
 
 When `claveVersion < installed` and there are no entries below to cross, there is nothing
-to do: note it in one line (register-appropriate) and proceed. The *detection* exists now,
+to do: note it in one plain line and proceed. The *detection* exists now,
 before any breaking change, so that sites built from this point on already know to look —
 that's the whole reason this file ships present-but-empty.
 

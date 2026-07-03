@@ -1,6 +1,6 @@
 # Troubleshooting: Drift & strict re-sync
 
-Off the happy path. Read this when the driver asks to **re-sync** — or when resume-time
+Off the happy path. Read this when the owner asks to **re-sync** — or when resume-time
 drift (see "Drift" in [SKILL.md](../SKILL.md)) is too tangled to triage in a line. The
 happy path is tolerant: cosmetic nudges are noted and left, only a **material
 contradiction** (the site contradicts what a spec positively asserts) stops and asks. This
@@ -20,7 +20,7 @@ right; the rule is *intent wins, then make the other side match it.*
     again.
   - Unintended / a mistake → revert the markup to the spec. **Fix** lane.
 - **Both edited, and they conflict** (two people, or a session that touched both): this is
-  a merge-of-intent, not just of bytes. Surface both versions to the driver rather than
+  a merge-of-intent, not just of bytes. Surface both versions to the owner rather than
   guessing — losing intent silently is worse than pausing. Once decided, the winning
   intent lands in the **spec** first, then the site is brought to match it.
 
@@ -37,13 +37,13 @@ right; the rule is *intent wins, then make the other side match it.*
    spec*; the site is regenerated from specs, never the other way around. A reversal is
    just a spec edit like any other — the diff in git is the record (see the Revision lane
    in [SKILL.md](../SKILL.md)).
-4. **Rebuild and re-run the qa gate** scoped to what changed — a reconcile can break what
+4. **Rebuild and re-run the ship audit** scoped to what changed — a reconcile can break what
    each side individually passed. Then the disk is trustworthy again and normal resumption
    (next-missing-artifact) holds.
 
 ## When to reach for strict mode vs. tolerate
 
 Strict re-sync is **expensive** (it audits the whole record) — don't run it on every
-resume. Reach for it when: the driver asks; drift is material and spans more than one
+resume. Reach for it when: the owner asks; drift is material and spans more than one
 artifact; or a repo has been edited by several hands/sessions and you no longer trust the
 derived state. A single cosmetic nudge never needs this — note it and move on.
