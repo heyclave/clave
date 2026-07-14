@@ -29,7 +29,7 @@ export default {
     try {
       form = await request.formData();
     } catch {
-      return reject(url, 'Could not read your submission. Please try again.');
+      return reject(url, 'read');
     }
 
     // 1. Honeypot — a bot filled the hidden field. Accept silently, send nothing.
@@ -40,7 +40,7 @@ export default {
 
     // 2. Turnstile — verify the token server-side. Missing/failed → reject.
     const ok = await verifyTurnstile(env.TURNSTILE_SECRET, form.get('cf-turnstile-response'), request);
-    if (!ok) return reject(url, 'Could not verify you are human. Please try again.');
+    if (!ok) return reject(url, 'verify');
 
     // 3. Email the owner. Reply-To is the visitor, so a reply answers the lead —
     //    but only when it's shaped like a bare address. It's untrusted input
@@ -58,7 +58,7 @@ export default {
         text: formatBody(form),
       });
     } catch (err) {
-      return reject(url, 'Something went wrong sending your message. Please try again.');
+      return reject(url, 'send');
     }
 
     return redirect(url, '/thanks');
@@ -111,10 +111,13 @@ function redirect(url, path) {
   return Response.redirect(new URL(path, url.origin).toString(), 303);
 }
 
-// On a recoverable error, redirect back with a message a no-JS page can show.
-function reject(url, message) {
+// On a recoverable error, redirect back with an error code; LeadForm.astro maps
+// codes to copy client-side. Codes rather than text on purpose: the worker stays
+// site-agnostic (copy belongs to the site, in the owner's voice), and a crafted
+// link can't plant attacker-chosen text in the site's own error banner.
+function reject(url, code) {
   const back = new URL('/', url.origin);
-  back.searchParams.set('lead_error', message);
+  back.searchParams.set('lead_error', code);
   back.hash = 'contact';
   return Response.redirect(back.toString(), 303);
 }

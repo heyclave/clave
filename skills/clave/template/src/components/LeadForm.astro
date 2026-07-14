@@ -1,8 +1,9 @@
 ---
-// Lead-capture form. Plain POST to /api/lead — works without JavaScript.
+// Lead-capture form. Plain POST to /api/lead — no fetch pipeline to break
+// (scripts are assumed anyway: Turnstile itself needs JS to issue a token).
 // Fields come from docs/website/brief.md; the build stage edits the fields below
-// to match. Keep: the honeypot (`lead_hp`), the Turnstile widget, the no-JS error
-// banner, and `method="POST" action="/api/lead"`.
+// to match. Keep: the honeypot (`lead_hp`), the Turnstile widget, the error
+// banner + its code→copy map, and `method="POST" action="/api/lead"`.
 //
 // Styling uses @theme tokens only (bg-*, text-*, border-*) — no off-spec values.
 // Accessible: every input has a <label for>; required fields are marked.
@@ -13,18 +14,29 @@ interface Props {
   sitekey?: string;
 }
 const { sitekey = '1x00000000000000000000AA' } = Astro.props;
-
-// No-JS error display: the worker redirects back with ?lead_error=… on a
-// recoverable failure (e.g. Turnstile not solved).
-const error = Astro.url.searchParams.get('lead_error');
 ---
 
 <form method="POST" action="/api/lead" class="flex flex-col gap-4">
-  {error && (
-    <p role="alert" class="rounded border border-border bg-surface px-4 py-3 text-body">
-      {error}
-    </p>
-  )}
+  {/* Recoverable-failure banner. The worker redirects back with ?lead_error=<code>
+      (see worker/index.js reject()); the script below maps codes to copy. Read
+      client-side on purpose — the site builds static, so Astro.url has no search
+      params at render time. Edit the copy per voice.md; the codes are the worker
+      contract, don't rename them. textContent + fixed strings mean a crafted URL
+      can't put its own words in the banner. */}
+  <p id="lead-error" role="alert" hidden class="rounded border border-border bg-surface px-4 py-3 text-body"></p>
+  <script>
+    const MESSAGES: Record<string, string> = {
+      read: 'Could not read your submission. Please try again.',
+      verify: 'Could not verify you are human. Please try again.',
+      send: 'Something went wrong sending your message. Please try again.',
+    };
+    const code = new URLSearchParams(location.search).get('lead_error');
+    const banner = document.getElementById('lead-error');
+    if (code && banner) {
+      banner.textContent = MESSAGES[code] ?? 'Something went wrong. Please try again.';
+      banner.hidden = false;
+    }
+  </script>
 
   <div class="flex flex-col gap-1">
     <label for="lead-name" class="text-body">Name</label>

@@ -93,7 +93,8 @@ section if the brief has no `## Lead capture`.**
 - [ ] **Form** — use `src/components/LeadForm.astro`; edit its fields to match the brief's
       captured list and place it where the brief says (often a `#contact` section)
       → **never improvise fields beyond the brief.** Keep the honeypot (`lead_hp`), the
-        Turnstile widget, the no-JS error banner, and `method="POST" action="/api/lead"`
+        Turnstile widget, the error banner + its code→copy map, and
+        `method="POST" action="/api/lead"`
 - [ ] **Copy** — replace template placeholders (labels, submit button,
       `src/pages/thanks.astro`, error text) from `voice.md`; accessible `<label for>` on
       every field
