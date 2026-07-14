@@ -85,12 +85,23 @@ async function verifyTurnstile(secret, token, request) {
 }
 
 // Build the email body from every submitted field except control fields.
+// Bounded on purpose: a bot that beats Turnstile (solver farms exist) could
+// otherwise post megabyte values or thousands of fields and turn the owner's
+// notification into a weapon. Real enquiries never get near these limits;
+// excess is truncated, not rejected — a too-chatty lead is still a lead.
+const MAX_FIELDS = 20;
+const MAX_LINE_CHARS = 4000;
+
 function formatBody(form) {
   const skip = new Set(['lead_hp', 'cf-turnstile-response']);
   const lines = [];
   for (const [key, value] of form.entries()) {
     if (skip.has(key)) continue;
-    lines.push(`${key}: ${value}`);
+    if (lines.length === MAX_FIELDS) {
+      lines.push('(further fields dropped)');
+      break;
+    }
+    lines.push(`${key}: ${value}`.slice(0, MAX_LINE_CHARS));
   }
   return lines.join('\n') || '(empty submission)';
 }
