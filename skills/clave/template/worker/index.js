@@ -42,13 +42,18 @@ export default {
     const ok = await verifyTurnstile(env.TURNSTILE_SECRET, form.get('cf-turnstile-response'), request);
     if (!ok) return reject(url, 'Could not verify you are human. Please try again.');
 
-    // 3. Email the owner. Reply-To is the visitor, so a reply answers the lead.
+    // 3. Email the owner. Reply-To is the visitor, so a reply answers the lead —
+    //    but only when it's shaped like a bare address. It's untrusted input
+    //    headed into an email header, and email.js is a swappable adapter, so
+    //    never assume the provider rejects header-injection attempts. Anything
+    //    else falls back to LEAD_TO (the raw value still appears in the body).
     const visitorEmail = (form.get('email') || '').toString().trim();
+    const replyTo = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(visitorEmail) ? visitorEmail : env.LEAD_TO;
     try {
       await sendEmail(env, {
         to: env.LEAD_TO,
         from: env.LEAD_FROM,
-        replyTo: visitorEmail || env.LEAD_TO,
+        replyTo,
         subject: env.LEAD_SUBJECT || 'New enquiry from your website',
         text: formatBody(form),
       });
