@@ -137,6 +137,11 @@ quick deploy.
    **the owner confirms it arrived** in their inbox, visitor address as Reply-To. That
    confirmation, recorded as `Last verified` below, is the evidence the capture gate
    passed — not a self-check.
+5. **Say what protects it, once, in plain outcomes.** Owners get asked "is it secure?"
+   and have no answer unless given one now: *"The form checks every visitor is a real
+   person before anything reaches your inbox, and the site keeps no database — there's
+   nothing for an attacker to break into."* One line at go-live, no jargon; the technical
+   version lives in the `Protection` line of the record below.
 
 If the Email Service onboarding UI has moved (it's in beta), follow the current dashboard
 flow; the contract is unchanged: verified sending domain + verified destination + a stored
@@ -178,6 +183,7 @@ search engines) — second-class by construction. See troubleshooting/deploy-acc
 - Notification address: <owner email submissions land in>
 - Sending domain: <domain the From address uses>
 - Turnstile sitekey: <public sitekey>
+- Protection: honeypot + server-side Turnstile; no database — leads land only in the inbox
 - Last verified: <YYYY-MM-DD a live test was confirmed received>
 ```
 
