@@ -133,15 +133,15 @@ can be any address on the owner's domain. Only `LEAD_TO` gets verified.
    (Google Workspace, etc.) changing MX would break real email. Routing is an inbound
    product; `send_email` doesn't use it.
 2. **Create a Turnstile widget** (dashboard → Turnstile → Add). The **sitekey** (public,
-   fine to commit) goes in `LeadForm.astro`, replacing the test-key default; the
-   **secret** never touches git:
+   fine to commit) replaces the test-key fallback in `LeadForm.astro`; the **secret**
+   never touches git:
    ```bash
    pnpm exec wrangler secret put TURNSTILE_SECRET
    ```
-   → stores against `wrangler.toml` config — no prior deploy needed, so this can run before
-     the first publish. Once the real sitekey is in the source, local `pnpm dev:full`
-     submits will fail Turnstile (real sitekey vs the local test secret) — expected; live
-     delivery is proven on the deployed site (step 4), not locally.
+   → the secret stores against `wrangler.toml` config — no prior deploy needed, so this can
+     run before the first publish. Local `pnpm dev` / `pnpm dev:full` keep the always-pass
+     test key automatically (via `.env.development`), so the form still works locally after
+     go-live — production uses the real sitekey, local uses the test key, no manual toggle.
 3. **Deploy** — `pnpm deploy` (per Publish above).
 4. **Send a live test — non-optional.** Submit a real enquiry through the live form and
    **the owner confirms it arrived** in their inbox, visitor address as Reply-To. A passing

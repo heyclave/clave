@@ -14,7 +14,7 @@
     "shots": "pnpm build && node scripts/shots.mjs",
     "audit": "pnpm build && node scripts/audit.mjs",
     "smoke": "pnpm check && pnpm shots",
-    "dev:full": "pnpm build && wrangler dev",
+    "dev:full": "astro build --mode development && wrangler dev",
     "deploy": "pnpm build && wrangler deploy"
   },
   "dependencies": {

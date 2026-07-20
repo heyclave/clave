@@ -9,11 +9,13 @@
 // Accessible: every input has a <label for>; required fields are marked.
 
 interface Props {
-  /** Turnstile sitekey. Defaults to the always-passing TEST key for local/QA.
-   *  The deploy provisioning step swaps in the real sitekey. */
+  /** Turnstile sitekey. Production uses the fallback below — ship replaces it with the
+   *  real sitekey. Local builds override it with the always-pass TEST key via
+   *  .env.development (PUBLIC_TURNSTILE_SITEKEY), so the form works locally without the
+   *  real secret. An explicit prop still wins. */
   sitekey?: string;
 }
-const { sitekey = '1x00000000000000000000AA' } = Astro.props;
+const { sitekey = import.meta.env.PUBLIC_TURNSTILE_SITEKEY ?? '1x00000000000000000000AA' } = Astro.props;
 ---
 
 <form method="POST" action="/api/lead" class="flex flex-col gap-4">
