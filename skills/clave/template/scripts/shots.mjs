@@ -65,7 +65,11 @@ try {
     const slug = route === '/' ? 'home' : route.replace(/\W+/g, '-').replace(/^-+|-+$/g, '');
     for (const [name, viewport] of Object.entries(VIEWPORTS)) {
       const page = await browser.newPage({ viewport });
-      await page.goto(BASE + route, { waitUntil: 'networkidle' });
+      // Block Turnstile: its script (challenges.cloudflare.com) holds a connection
+      // open, so 'networkidle' never fires and navigation times out on any page with
+      // a lead form. We use 'load' and don't screenshot the third-party widget anyway.
+      await page.route('https://challenges.cloudflare.com/**', (r) => r.abort());
+      await page.goto(BASE + route, { waitUntil: 'load' });
       // scroll through to trigger lazy/in-view reveals, then back to top
       await page.evaluate(async () => {
         for (let y = 0; y <= document.body.scrollHeight; y += 600) {

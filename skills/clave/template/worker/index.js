@@ -6,10 +6,11 @@
 //
 // Config comes from env (set in wrangler.toml [vars] or as secrets), so this file
 // is site-agnostic and never edited per site:
-//   LEAD_TO            — owner inbox submissions land in              (var)
-//   LEAD_FROM          — From address, on the verified sending domain (var)
-//   LEAD_SUBJECT       — subject line for the notification            (var, optional)
-//   TURNSTILE_SECRET   — Turnstile secret key                         (secret)
+//   LEAD_TO            — owner inbox submissions land in                (var)
+//   LEAD_FROM          — From address, any address on the owner's domain (var)
+//   LEAD_SUBJECT       — subject line for the notification              (var, optional)
+//   LEAD_PAGE          — page the form lives on, for error redirects    (var, optional)
+//   TURNSTILE_SECRET   — Turnstile secret key                           (secret)
 // The honeypot field is named "lead_hp" (a non-autofill name; see LeadForm.astro).
 
 import { sendEmail } from './email.js';
@@ -29,7 +30,7 @@ export default {
     try {
       form = await request.formData();
     } catch {
-      return reject(url, 'read');
+      return reject(url, 'read', env);
     }
 
     // 1. Honeypot — a bot filled the hidden field. Accept silently, send nothing.
@@ -40,7 +41,7 @@ export default {
 
     // 2. Turnstile — verify the token server-side. Missing/failed → reject.
     const ok = await verifyTurnstile(env.TURNSTILE_SECRET, form.get('cf-turnstile-response'), request);
-    if (!ok) return reject(url, 'verify');
+    if (!ok) return reject(url, 'verify', env);
 
     // 3. Email the owner. Reply-To is the visitor, so a reply answers the lead —
     //    but only when it's shaped like a bare address. It's untrusted input
@@ -58,7 +59,7 @@ export default {
         text: formatBody(form),
       });
     } catch (err) {
-      return reject(url, 'send');
+      return reject(url, 'send', env);
     }
 
     return redirect(url, '/thanks');
@@ -115,9 +116,14 @@ function redirect(url, path) {
 // codes to copy client-side. Codes rather than text on purpose: the worker stays
 // site-agnostic (copy belongs to the site, in the owner's voice), and a crafted
 // link can't plant attacker-chosen text in the site's own error banner.
-function reject(url, code) {
-  const back = new URL('/', url.origin);
+//
+// Default target is the homepage's #contact section (the common case: a form in a
+// homepage section). LEAD_PAGE overrides it for a standalone contact page (e.g.
+// "/contact"), so a failed submit returns the visitor to the form — not the homepage,
+// which would strand them and lose the error banner.
+function reject(url, code, env) {
+  const back = new URL(env?.LEAD_PAGE || '/', url.origin);
   back.searchParams.set('lead_error', code);
-  back.hash = 'contact';
+  if (!env?.LEAD_PAGE) back.hash = 'contact';
   return Response.redirect(back.toString(), 303);
 }

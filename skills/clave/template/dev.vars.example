@@ -4,9 +4,10 @@
 # never production (production secret is set via `wrangler secret put`).
 #
 # Email is NOT sent in local dev (no real binding) — full delivery is verified
-# only against the deployed site (see stages/qa.md). Local dev exercises the
+# only against the deployed site (see stages/ship.md). Local dev exercises the
 # honeypot, Turnstile, validation, and the redirect-to-/thanks flow.
 LEAD_TO="you@example.com"
 LEAD_FROM="hello@example.com"
 LEAD_SUBJECT="New enquiry from your website"
+# LEAD_PAGE="/contact"   # only if the form lives on a standalone page (default: /#contact)
 TURNSTILE_SECRET="1x0000000000000000000000000000000AA"

@@ -80,8 +80,8 @@ to be **authenticated** to their own Cloudflare account.
   session. (`pnpm exec wrangler login` from inside the site also works.)
 - **Check:** `pnpm exec wrangler whoami` prints the authenticated account/email.
 - **Auth expired / wrong account:** `wrangler logout` then `wrangler login` again, picking
-  the right account. Custom-domain and lead-capture (Email Sending, Turnstile) setup is a
-  separate guided session — see [ship.md](../stages/ship.md), not here.
+  the right account. Custom-domain and lead-capture (destination verification, Turnstile)
+  setup is a separate guided session — see [ship.md](../stages/ship.md), not here.
 
 Version pins, update offers, and migration live in [versioning.md](versioning.md), not
 here — a pin stop looks like a failed prereq but is the skill's own doing.

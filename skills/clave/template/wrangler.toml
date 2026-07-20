@@ -12,7 +12,7 @@ compatibility_date = "2026-06-15"
 # `wrangler whoami`) and commits it — it pins the deploy to one account so a
 # collaborator on a different account can't silently fork the site. It's a
 # coordinate, not a secret (you can't authenticate with it). Leave blank until
-# the first deploy; do NOT hardcode — it's per-owner. See stages/deploy.md.
+# the first deploy; do NOT hardcode — it's per-owner. See stages/ship.md.
 # account_id = ""
 
 # Lead capture: uncomment to make worker/index.js own POST /api/lead. Must stay
@@ -33,12 +33,13 @@ directory = "./dist"
 # Also uncomment `main` above and the two keys under [assets]. Requires
 # worker/index.js + worker/email.js to exist. Set LEAD_TO / LEAD_FROM to real
 # addresses, then store the Turnstile secret with
-# `wrangler secret put TURNSTILE_SECRET`. See stages/build.md and stages/deploy.md.
+# `wrangler secret put TURNSTILE_SECRET`. See stages/build.md and stages/ship.md.
 #
 # [[send_email]]
 # name = "EMAIL"
 #
 # [vars]
-# LEAD_TO = "owner@example.com"        # where enquiries land (from the brief)
-# LEAD_FROM = "hello@yourdomain.com"   # From address, on the verified sending domain
+# LEAD_TO = "owner@example.com"        # where enquiries land (from the brief); verify it as a Destination Address
+# LEAD_FROM = "hello@yourdomain.com"   # From: any address on the owner's Cloudflare domain (it never receives mail)
 # LEAD_SUBJECT = "New enquiry from your website"
+# LEAD_PAGE = "/contact"               # optional: set ONLY for a standalone form page, so a failed submit returns here (default: /#contact)

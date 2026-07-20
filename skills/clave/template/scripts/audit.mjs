@@ -59,7 +59,11 @@ try {
   const context = await browser.newContext(); // axe requires context-created pages
   for (const route of routes) {
     const page = await context.newPage();
-    await page.goto(BASE + route, { waitUntil: 'networkidle' });
+    // Block Turnstile: its script (challenges.cloudflare.com) holds a connection
+    // open, so 'networkidle' never settles and navigation times out on form pages.
+    // We use 'load'; the widget is a third-party iframe axe can't scan anyway.
+    await page.route('https://challenges.cloudflare.com/**', (r) => r.abort());
+    await page.goto(BASE + route, { waitUntil: 'load' });
     const results = await new AxeBuilder({ page }).analyze();
     for (const v of results.violations) {
       violations += 1;

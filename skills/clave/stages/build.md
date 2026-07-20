@@ -104,8 +104,10 @@ section if the brief has no `## Lead capture`.**
         adapter seam)
 - [ ] **Config** — in `wrangler.toml`, uncomment `main`, `binding`, `run_worker_first`,
       `[[send_email]]`, and `[vars]`; set `LEAD_TO` (brief's notification address) and
-      `LEAD_FROM` (an address on the verified sending domain — placeholder fine until the
-      domain is onboarded at ship)
+      `LEAD_FROM` (any address on the owner's own domain — it only ever appears as the
+      From and never receives mail; placeholder fine until the domain is attached at ship).
+      On a **standalone** contact page (not a homepage `#contact` section), also set
+      `LEAD_PAGE` (e.g. `/contact`) so a failed submit returns the visitor to the form
       → `binding`/`run_worker_first` ship commented (an assets-only site must omit
         `binding`); a form needs all five uncommented. The **Turnstile secret is *not* a
         var** — ship stores it via `wrangler secret put`, so leave it out of `[vars]`

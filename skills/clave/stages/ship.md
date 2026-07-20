@@ -117,35 +117,47 @@ are baked in at build time). Record the new canonical URL in `docs/website/deplo
 ## Lead-capture go-live (one-time, only if the brief asks for capture)
 
 Run this **once per site**, at the first publish of a site with capture. **Set
-expectations first:** it's ~15 minutes of guided dashboard clicking *together* —
-onboarding a sending domain, verifying the owner's inbox, creating a Turnstile widget —
-and it needs the custom domain above. Say plainly it's a one-time setup session, not a
-quick deploy.
+expectations first:** ~10 minutes of guided dashboard clicking *together* — verifying the
+owner's inbox and creating a Turnstile widget — plus the custom domain above (the `From`
+address rides on it). Say plainly it's a one-time setup session, not a quick deploy.
 
-1. **Onboard the sending domain** (dashboard → Email → Email Sending). DNS records are
-   auto-added since the zone is in the account.
-2. **Verify the owner's destination address** — "check your inbox and click the
-   verification link." The free plan only delivers to verified destinations; it's the
-   owner's own inbox, so one click.
-3. **Create a Turnstile widget** (dashboard → Turnstile → Add). The **sitekey** (public,
+**There is no sending domain to onboard and no DNS to change.** Cloudflare's `send_email`
+binding lets a Worker mail only addresses the owner has *proven they control*, so the
+recipient is the anti-abuse gate and the `From` needs no SPF/DKIM/verification — `LEAD_FROM`
+can be any address on the owner's domain. Only `LEAD_TO` gets verified.
+
+1. **Verify the owner's inbox as a Destination Address** (dashboard → Email → Email
+   Routing → Destination Addresses → Add). Cloudflare emails a link; the owner clicks it —
+   it's their own inbox, so one click. **Leave Email Routing _disabled_ and do NOT touch
+   MX records:** verification works with routing off, and on a domain with existing mail
+   (Google Workspace, etc.) changing MX would break real email. Routing is an inbound
+   product; `send_email` doesn't use it.
+2. **Create a Turnstile widget** (dashboard → Turnstile → Add). The **sitekey** (public,
    fine to commit) goes in `LeadForm.astro`, replacing the test-key default; the
    **secret** never touches git:
    ```bash
    pnpm exec wrangler secret put TURNSTILE_SECRET
    ```
-4. **Publish, then send a live test** — submit a real enquiry through the live form and
-   **the owner confirms it arrived** in their inbox, visitor address as Reply-To. That
-   confirmation, recorded as `Last verified` below, is the evidence the capture gate
-   passed — not a self-check.
+   → stores against `wrangler.toml` config — no prior deploy needed, so this can run before
+     the first publish. Once the real sitekey is in the source, local `pnpm dev:full`
+     submits will fail Turnstile (real sitekey vs the local test secret) — expected; live
+     delivery is proven on the deployed site (step 4), not locally.
+3. **Deploy** — `pnpm deploy` (per Publish above).
+4. **Send a live test — non-optional.** Submit a real enquiry through the live form and
+   **the owner confirms it arrived** in their inbox, visitor address as Reply-To. A passing
+   form is *not* proof of delivery: if `EMAIL.send()` fails the visitor still lands on
+   `/thanks` and sees success, so only a received email closes the gate. Record it as `Last
+   verified` below. Didn't arrive? `pnpm exec wrangler tail` streams the live Worker logs to
+   diagnose.
 5. **Say what protects it, once, in plain outcomes.** Owners get asked "is it secure?"
    and have no answer unless given one now: *"The form checks every visitor is a real
    person before anything reaches your inbox, and the site keeps no database — there's
    nothing for an attacker to break into."* One line at go-live, no jargon; the technical
    version lives in the `Protection` line of the record below.
 
-If the Email Service onboarding UI has moved (it's in beta), follow the current dashboard
-flow; the contract is unchanged: verified sending domain + verified destination + a stored
-Turnstile secret. The owner's notification address lives in `wrangler.toml` `[vars]` as
+If the dashboard UI has moved (Email is under active development), follow the current flow;
+the contract is unchanged: **a verified destination + a stored Turnstile secret** — no
+sending domain, no MX change. The owner's notification address lives in `wrangler.toml` `[vars]` as
 `LEAD_TO` (committed config, not a credential); if the owner would rather keep it out of
 git, promote it to a secret (`wrangler secret put LEAD_TO`) and drop it from `[vars]`.
 
@@ -180,8 +192,8 @@ search engines) — second-class by construction. See troubleshooting/deploy-acc
 ## Lead capture
 <!-- Omit this whole section if the site has no capture form. -->
 - Provider: cloudflare-email
-- Notification address: <owner email submissions land in>
-- Sending domain: <domain the From address uses>
+- Notification address: <owner email submissions land in — the verified Destination Address>
+- From domain: <the owner's Cloudflare zone the From address sits on; no onboarding>
 - Turnstile sitekey: <public sitekey>
 - Protection: honeypot + server-side Turnstile; no database — leads land only in the inbox
 - Last verified: <YYYY-MM-DD a live test was confirmed received>
