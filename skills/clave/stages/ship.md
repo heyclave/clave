@@ -128,7 +128,7 @@ can be any address on the owner's domain. Only `LEAD_TO` gets verified.
 
 1. **Verify the owner's inbox as a Destination Address** (dashboard → Email → Email
    Routing → Destination Addresses → Add). Cloudflare emails a link; the owner clicks it —
-   it's their own inbox, so one click. **Leave Email Routing _disabled_ and do NOT touch
+   it's their own inbox, so one click. **Leave Email Routing *disabled* and do NOT touch
    MX records:** verification works with routing off, and on a domain with existing mail
    (Google Workspace, etc.) changing MX would break real email. Routing is an inbound
    product; `send_email` doesn't use it.
